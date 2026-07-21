@@ -1,11 +1,23 @@
 "use client";
 
-import { useEmployees } from "@/hooks/useEmployees";
+import { Employee } from "@/types/employee";
 import EmployeeRow from "./EmployeeRow";
 
-export default function EmployeeTable() {
+interface EmployeeTableProps {
 
-    const { employees, loading } = useEmployees();
+    employees: Employee[];
+
+    loading: boolean;
+
+}
+
+export default function EmployeeTable({
+
+    employees,
+
+    loading
+
+}: EmployeeTableProps) {
 
     if (loading) {
 
@@ -32,27 +44,39 @@ export default function EmployeeTable() {
                     <tr>
 
                         <th className="p-4 text-left">
+
                             Documento
+
                         </th>
 
                         <th className="text-left">
+
                             Nombre
+
                         </th>
 
                         <th className="text-left">
+
                             Cargo
+
                         </th>
 
                         <th className="text-left">
+
                             Dependencia
+
                         </th>
 
                         <th className="text-left">
+
                             Estado
+
                         </th>
 
                         <th className="text-center">
+
                             Acciones
+
                         </th>
 
                     </tr>
