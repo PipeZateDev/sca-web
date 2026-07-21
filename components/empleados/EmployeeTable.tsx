@@ -1,11 +1,29 @@
-import { mockEmployees } from "@/lib/mockEmployees";
+"use client";
+
+import { useEmployees } from "@/hooks/useEmployees";
 import EmployeeRow from "./EmployeeRow";
 
 export default function EmployeeTable() {
 
+    const { employees, loading } = useEmployees();
+
+    if (loading) {
+
+        return (
+
+            <div className="rounded-2xl border bg-white p-10 text-center shadow">
+
+                Cargando empleados...
+
+            </div>
+
+        );
+
+    }
+
     return (
 
-        <div className="bg-white rounded-2xl shadow border overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border bg-white shadow">
 
             <table className="w-full">
 
@@ -13,17 +31,29 @@ export default function EmployeeTable() {
 
                     <tr>
 
-                        <th className="text-left p-4">Documento</th>
+                        <th className="p-4 text-left">
+                            Documento
+                        </th>
 
-                        <th className="text-left">Nombre</th>
+                        <th className="text-left">
+                            Nombre
+                        </th>
 
-                        <th className="text-left">Cargo</th>
+                        <th className="text-left">
+                            Cargo
+                        </th>
 
-                        <th className="text-left">Dependencia</th>
+                        <th className="text-left">
+                            Dependencia
+                        </th>
 
-                        <th className="text-left">Estado</th>
+                        <th className="text-left">
+                            Estado
+                        </th>
 
-                        <th className="text-center">Acciones</th>
+                        <th className="text-center">
+                            Acciones
+                        </th>
 
                     </tr>
 
@@ -31,17 +61,33 @@ export default function EmployeeTable() {
 
                 <tbody>
 
-                    {mockEmployees.map(employee=>(
+                    {employees.length === 0 ? (
 
-                        <EmployeeRow
+                        <tr>
 
-                            key={employee._id ?? employee.documento}
+                            <td
+                                colSpan={6}
+                                className="p-8 text-center text-gray-500"
+                            >
 
-                            employee={employee}
+                                No existen empleados registrados.
 
-                        />
+                            </td>
 
-                    ))}
+                        </tr>
+
+                    ) : (
+
+                        employees.map((employee) => (
+
+                            <EmployeeRow
+                                key={employee._id ?? employee.documento}
+                                employee={employee}
+                            />
+
+                        ))
+
+                    )}
 
                 </tbody>
 
