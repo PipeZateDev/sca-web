@@ -63,7 +63,7 @@ function construirEstadoDelDia(
         : null;
 
     const festivoAplicable = festivosDelDia.some((f) =>
-        festivoAplica(f.dependencias, empleado.dependencia)
+        festivoAplica(f.horarios, empleado.horario)
     );
 
     let estado: AttendanceEstado;
@@ -149,11 +149,44 @@ export async function getDailyStatus(fecha: Date): Promise<EmployeeDayStatus[]> 
 
 }
 
-export async function getWeeklySummary(weekStart: Date): Promise<EmployeeWeekSummary[]> {
+function enumerarDias(desde: Date, hasta: Date): Date[] {
 
-    const lunes = startOfWeekMonday(weekStart);
+    const inicio = inicioDelDia(desde);
+    const fin = inicioDelDia(hasta);
 
-    const dias = Array.from({ length: 7 }, (_, i) => addDays(lunes, i));
+    const dias: Date[] = [];
+    let cursor = inicio;
+
+    while (cursor.getTime() <= fin.getTime()) {
+
+        dias.push(cursor);
+        cursor = addDays(cursor, 1);
+
+    }
+
+    return dias;
+
+}
+
+export async function getRangeStatuses(
+    desde: Date,
+    hasta: Date
+): Promise<EmployeeDayStatus[]> {
+
+    const dias = enumerarDias(desde, hasta);
+
+    const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d)));
+
+    return estadosPorDia.flat();
+
+}
+
+export async function getRangeSummary(
+    desde: Date,
+    hasta: Date
+): Promise<EmployeeWeekSummary[]> {
+
+    const dias = enumerarDias(desde, hasta);
 
     const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d)));
 
@@ -199,6 +232,14 @@ export async function getWeeklySummary(weekStart: Date): Promise<EmployeeWeekSum
             (a.horarioNombre ?? "").localeCompare(b.horarioNombre ?? "") ||
             a.nombreCompleto.localeCompare(b.nombreCompleto)
     );
+
+}
+
+export async function getWeeklySummary(weekStart: Date): Promise<EmployeeWeekSummary[]> {
+
+    const lunes = startOfWeekMonday(weekStart);
+
+    return getRangeSummary(lunes, addDays(lunes, 6));
 
 }
 

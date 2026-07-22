@@ -8,12 +8,12 @@ export interface HolidayFormData {
     fecha: string;
     nombre: string;
     tipo: TipoFestivo;
-    dependencias: string[];
+    horarios: string[];
 }
 
 interface Props {
     fechaInicial?: string;
-    dependenciasDisponibles: string[];
+    horariosDisponibles: string[];
     onSave: (data: HolidayFormData) => Promise<boolean>;
     onCancel: () => void;
 }
@@ -22,7 +22,7 @@ export default function HolidayForm({
 
     fechaInicial,
 
-    dependenciasDisponibles,
+    horariosDisponibles,
 
     onSave,
 
@@ -33,8 +33,8 @@ export default function HolidayForm({
     const [fecha, setFecha] = useState(fechaInicial ?? "");
     const [nombre, setNombre] = useState("");
     const [tipo, setTipo] = useState<TipoFestivo>("FESTIVO");
-    const [todas, setTodas] = useState(true);
-    const [dependenciasSeleccionadas, setDependenciasSeleccionadas] = useState<string[]>([]);
+    const [todos, setTodos] = useState(true);
+    const [horariosSeleccionados, setHorariosSeleccionados] = useState<string[]>([]);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -43,10 +43,12 @@ export default function HolidayForm({
 
     }, [fechaInicial]);
 
-    function toggleDependencia(dep: string) {
+    function toggleHorario(nombreHorario: string) {
 
-        setDependenciasSeleccionadas((prev) =>
-            prev.includes(dep) ? prev.filter((d) => d !== dep) : [...prev, dep]
+        setHorariosSeleccionados((prev) =>
+            prev.includes(nombreHorario)
+                ? prev.filter((h) => h !== nombreHorario)
+                : [...prev, nombreHorario]
         );
 
     }
@@ -71,7 +73,7 @@ export default function HolidayForm({
             fecha,
             nombre: nombre.trim(),
             tipo,
-            dependencias: todas ? [] : dependenciasSeleccionadas
+            horarios: todos ? [] : horariosSeleccionados
         });
 
         setSaving(false);
@@ -80,8 +82,8 @@ export default function HolidayForm({
 
             setNombre("");
             setTipo("FESTIVO");
-            setTodas(true);
-            setDependenciasSeleccionadas([]);
+            setTodos(true);
+            setHorariosSeleccionados([]);
 
         }
 
@@ -128,33 +130,43 @@ export default function HolidayForm({
 
                     <input
                         type="checkbox"
-                        checked={todas}
-                        onChange={(e) => setTodas(e.target.checked)}
+                        checked={todos}
+                        onChange={(e) => setTodos(e.target.checked)}
                     />
 
-                    Aplica a todas las dependencias
+                    Aplica a todos los horarios
 
                 </label>
 
-                {!todas && (
+                {!todos && (
 
                     <div className="ml-6 flex flex-wrap gap-3">
 
-                        {dependenciasDisponibles.map((dep) => (
+                        {horariosDisponibles.length === 0 ? (
 
-                            <label key={dep} className="flex items-center gap-1 text-sm">
+                            <p className="text-sm text-gray-400">
+                                No hay horarios creados todavía.
+                            </p>
 
-                                <input
-                                    type="checkbox"
-                                    checked={dependenciasSeleccionadas.includes(dep)}
-                                    onChange={() => toggleDependencia(dep)}
-                                />
+                        ) : (
 
-                                {dep}
+                            horariosDisponibles.map((nombreHorario) => (
 
-                            </label>
+                                <label key={nombreHorario} className="flex items-center gap-1 text-sm">
 
-                        ))}
+                                    <input
+                                        type="checkbox"
+                                        checked={horariosSeleccionados.includes(nombreHorario)}
+                                        onChange={() => toggleHorario(nombreHorario)}
+                                    />
+
+                                    {nombreHorario}
+
+                                </label>
+
+                            ))
+
+                        )}
 
                     </div>
 

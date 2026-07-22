@@ -10,7 +10,7 @@ export function createHoliday(data: Partial<Holiday>): Holiday {
 
         tipo: data.tipo ?? "FESTIVO",
 
-        dependencias: data.dependencias ?? [],
+        horarios: data.horarios ?? [],
 
         createdAt: new Date()
 

@@ -100,13 +100,13 @@ export type AttendanceEstado =
     | "FESTIVO";
 
 export function festivoAplica(
-    dependenciasFestivo: string[],
-    dependenciaEmpleado: string
+    horariosFestivo: string[],
+    horarioEmpleado: string
 ): boolean {
 
     return (
-        dependenciasFestivo.length === 0 ||
-        dependenciasFestivo.includes(dependenciaEmpleado)
+        horariosFestivo.length === 0 ||
+        horariosFestivo.includes(horarioEmpleado)
     );
 
 }

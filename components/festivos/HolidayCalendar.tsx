@@ -72,37 +72,37 @@ export default function HolidayCalendar({ holidays, onDayClick }: Props) {
 
     return (
 
-        <div className="rounded-2xl border bg-white p-6 shadow">
+        <div className="w-full max-w-xs rounded-2xl border bg-white p-3 shadow">
 
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-2 flex items-center justify-between">
 
                 <button
                     onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-                    className="rounded-lg border px-3 py-1 transition hover:bg-slate-50"
+                    className="rounded-md border px-2 py-0.5 text-sm transition hover:bg-slate-50"
                 >
                     ‹
                 </button>
 
-                <p className="font-semibold">
+                <p className="text-sm font-semibold">
                     {MESES[cursor.getMonth()]} {cursor.getFullYear()}
                 </p>
 
                 <button
                     onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-                    className="rounded-lg border px-3 py-1 transition hover:bg-slate-50"
+                    className="rounded-md border px-2 py-0.5 text-sm transition hover:bg-slate-50"
                 >
                     ›
                 </button>
 
             </div>
 
-            <div className="mb-2 grid grid-cols-7 gap-1 text-center text-xs text-gray-500">
+            <div className="mb-1 grid grid-cols-7 gap-0.5 text-center text-[10px] text-gray-500">
 
                 {DIAS_SEMANA.map((d) => <div key={d}>{d}</div>)}
 
             </div>
 
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0.5">
 
                 {celdas.map((date, idx) => {
 
@@ -118,7 +118,7 @@ export default function HolidayCalendar({ holidays, onDayClick }: Props) {
                             key={iso}
                             onClick={() => onDayClick(iso)}
                             title={eventos.map((e) => e.nombre).join(", ")}
-                            className={`aspect-square rounded-lg border text-sm transition hover:border-green-600 ${
+                            className={`aspect-square rounded-md border text-xs transition hover:border-green-600 ${
                                 tipo === "FESTIVO"
                                     ? "bg-purple-100 font-medium text-purple-800"
                                     : tipo === "EVENTO"

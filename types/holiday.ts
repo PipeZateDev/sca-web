@@ -10,7 +10,7 @@ export interface Holiday {
 
     tipo: TipoFestivo;
 
-    dependencias: string[];
+    horarios: string[];
 
     createdAt?: Date;
 }

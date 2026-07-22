@@ -2,17 +2,22 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Footer from "./Footer";
 
+import { getSessionUser } from "@/lib/auth";
+
 interface Props {
   children: React.ReactNode;
 }
 
-export default function MainLayout({ children }: Props) {
+export default async function MainLayout({ children }: Props) {
+
+  const user = await getSessionUser();
+
   return (
     <div className="flex min-h-screen bg-[#F5F7FA]">
-      <Sidebar />
+      <Sidebar user={user} />
 
       <div className="flex flex-1 flex-col">
-        <Header />
+        <Header user={user} />
 
         <main className="flex-1 p-8 overflow-auto">
           {children}

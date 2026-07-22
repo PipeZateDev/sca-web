@@ -47,7 +47,7 @@ export default function HolidayList({ holidays, loading, onDelete }: Props) {
                         <th className="p-4 text-left">Fecha</th>
                         <th className="text-left">Nombre</th>
                         <th className="text-left">Tipo</th>
-                        <th className="text-left">Dependencias</th>
+                        <th className="text-left">Horarios</th>
                         <th className="text-center">Acciones</th>
 
                     </tr>
@@ -92,9 +92,9 @@ export default function HolidayList({ holidays, loading, onDelete }: Props) {
 
                                 <td>
 
-                                    {holiday.dependencias.length === 0
-                                        ? "Todas"
-                                        : holiday.dependencias.join(", ")}
+                                    {holiday.horarios.length === 0
+                                        ? "Todos"
+                                        : holiday.horarios.join(", ")}
 
                                 </td>
 

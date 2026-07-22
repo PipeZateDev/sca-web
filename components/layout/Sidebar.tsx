@@ -5,9 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { menu } from "@/config/menu";
+import { SessionPayload } from "@/lib/auth";
 
-export default function Sidebar() {
+interface Props {
+  user: SessionPayload | null;
+}
+
+export default function Sidebar({ user }: Props) {
   const pathname = usePathname();
+
+  const itemsVisibles = menu.filter(
+    (item) => !item.roles || (user && item.roles.includes(user.rol))
+  );
 
   return (
     <aside className="w-72 bg-[#0B4F8A] text-white flex flex-col h-screen shadow-xl">
@@ -27,7 +36,7 @@ export default function Sidebar() {
       {/* Menú */}
       <nav className="flex-1 mt-5 px-3">
 
-        {menu.map((item) => {
+        {itemsVisibles.map((item) => {
 
           const Icon = item.icon;
 

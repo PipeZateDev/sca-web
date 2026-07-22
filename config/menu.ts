@@ -60,6 +60,7 @@ export const menu: MenuItem[] = [
         title: "Configuración",
         href: "/configuracion",
         icon: Settings,
+        roles: ["ADMINISTRADOR"],
     },
 
     {
