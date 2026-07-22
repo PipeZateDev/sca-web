@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 
 import { EmployeeDayStatus, EmployeeWeekSummary } from "@/types/attendanceStatus";
 
-export function useWeeklySummary(inicioISO: string) {
+export function useWeeklySummary(inicioISO: string, estudiantes = false) {
 
     const [resumen, setResumen] = useState<EmployeeWeekSummary[]>([]);
     const [loading, setLoading] = useState(true);
@@ -16,7 +16,9 @@ export function useWeeklySummary(inicioISO: string) {
 
             setLoading(true);
 
-            const response = await fetch(`/api/asistencias/resumen-semana?inicio=${inicioISO}`);
+            const poblacion = estudiantes ? "&poblacion=estudiantes" : "";
+
+            const response = await fetch(`/api/asistencias/resumen-semana?inicio=${inicioISO}${poblacion}`);
 
             if (!response.ok) {
                 throw new Error("No fue posible cargar el resumen semanal.");
@@ -40,7 +42,7 @@ export function useWeeklySummary(inicioISO: string) {
 
         }
 
-    }, [inicioISO]);
+    }, [inicioISO, estudiantes]);
 
     useEffect(() => {
 
@@ -54,11 +56,14 @@ export function useWeeklySummary(inicioISO: string) {
 
 export async function fetchEmployeeWeekDetail(
     empleadoId: string,
-    inicioISO: string
+    inicioISO: string,
+    estudiantes = false
 ): Promise<EmployeeDayStatus[]> {
 
+    const poblacion = estudiantes ? "&poblacion=estudiantes" : "";
+
     const response = await fetch(
-        `/api/asistencias/resumen-semana/${empleadoId}?inicio=${inicioISO}`
+        `/api/asistencias/resumen-semana/${empleadoId}?inicio=${inicioISO}${poblacion}`
     );
 
     if (!response.ok) {

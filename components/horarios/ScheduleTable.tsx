@@ -52,7 +52,7 @@ export default function ScheduleTable({
 
     return (
 
-        <div className="overflow-hidden rounded-2xl border bg-white shadow">
+        <div className="overflow-x-auto rounded-2xl border bg-white shadow">
 
             <table className="w-full">
 

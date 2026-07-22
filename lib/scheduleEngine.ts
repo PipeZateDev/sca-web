@@ -97,7 +97,8 @@ export type AttendanceEstado =
     | "PENDIENTE"
     | "SIN_HORARIO"
     | "NO_LABORAL"
-    | "FESTIVO";
+    | "FESTIVO"
+    | "DOMINICAL";
 
 export function festivoAplica(
     horariosFestivo: string[],

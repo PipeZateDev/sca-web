@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 
 import { EmployeeDayStatus } from "@/types/attendanceStatus";
 
-export function useDailyStatus(fechaISO: string) {
+export function useDailyStatus(fechaISO: string, estudiantes = false) {
 
     const [estados, setEstados] = useState<EmployeeDayStatus[]>([]);
     const [loading, setLoading] = useState(true);
@@ -16,7 +16,9 @@ export function useDailyStatus(fechaISO: string) {
 
             setLoading(true);
 
-            const response = await fetch(`/api/asistencias/estado-dia?fecha=${fechaISO}`);
+            const poblacion = estudiantes ? "&poblacion=estudiantes" : "";
+
+            const response = await fetch(`/api/asistencias/estado-dia?fecha=${fechaISO}${poblacion}`);
 
             if (!response.ok) {
                 throw new Error("No fue posible cargar el estado del día.");
@@ -40,7 +42,7 @@ export function useDailyStatus(fechaISO: string) {
 
         }
 
-    }, [fechaISO]);
+    }, [fechaISO, estudiantes]);
 
     useEffect(() => {
 

@@ -6,10 +6,12 @@ import { withStringId } from "@/lib/mongoId";
 
 import {
     getEmployees,
-    createNewEmployee
+    createNewEmployee,
+    updateEmployee
 } from "@/services/employee.service";
 
 import { parseAttendanceWorkbook } from "@/lib/parsers/attendanceWorkbook";
+import { esEstudiante, DEPENDENCIA_ESTUDIANTE } from "@/lib/students";
 
 export interface ImportAttendanceSummary {
 
@@ -66,6 +68,23 @@ export async function importAttendanceWorkbook(
 
             if (idsExistentesAlInicio.has(registro.biometricoId)) {
                 empleadosVinculadosIds.add(registro.biometricoId);
+            }
+
+            if (
+                esEstudiante(registro.departamento) &&
+                !esEstudiante(empleado.dependencia) &&
+                empleado._id
+            ) {
+
+                const actualizado = await updateEmployee(empleado._id, {
+                    dependencia: DEPENDENCIA_ESTUDIANTE
+                });
+
+                if (actualizado) {
+                    empleado = actualizado;
+                    empleadosPorBiometrico.set(registro.biometricoId, actualizado);
+                }
+
             }
 
         } else {

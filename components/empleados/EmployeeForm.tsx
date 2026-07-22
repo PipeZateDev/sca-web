@@ -129,7 +129,7 @@ export default function EmployeeForm({
 
         <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-2 gap-4"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
 
             <input

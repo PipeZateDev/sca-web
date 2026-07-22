@@ -30,13 +30,13 @@ export default function Modal({
 
     return (
 
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
 
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl">
+            <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
 
-                <div className="flex justify-between items-center border-b p-5">
+                <div className="flex items-center justify-between border-b p-4 sm:p-5">
 
-                    <h2 className="text-xl font-bold">
+                    <h2 className="text-lg font-bold sm:text-xl">
 
                         {title}
 
@@ -53,7 +53,7 @@ export default function Modal({
 
                 </div>
 
-                <div className="p-6">
+                <div className="overflow-y-auto p-4 sm:p-6">
 
                     {children}
 

@@ -16,8 +16,9 @@ import {
 
 import { getEmployees } from "@/services/employee.service";
 import { getSchedules } from "@/services/schedule.service";
-import { getAttendance, getTodayAttendanceCount } from "@/services/attendance.service";
+import { getAttendance } from "@/services/attendance.service";
 import { getHolidaysForDate } from "@/services/holiday.service";
+import { esEstudiante, Poblacion } from "@/lib/students";
 
 function inicioDelDia(fecha: Date): Date {
 
@@ -29,9 +30,11 @@ function inicioDelDia(fecha: Date): Date {
 
 }
 
-async function cargarContexto() {
+async function cargarContexto(poblacion: Poblacion = "EMPLEADOS") {
 
-    const empleados = (await getEmployees()).filter((e) => e.estado === "ACTIVO");
+    const empleados = (await getEmployees()).filter(
+        (e) => e.estado === "ACTIVO" && esEstudiante(e.dependencia) === (poblacion === "ESTUDIANTES")
+    );
 
     const horarios = await getSchedules();
 
@@ -72,6 +75,10 @@ function construirEstadoDelDia(
 
         estado = "FESTIVO";
 
+    } else if (dia === "DOMINGO") {
+
+        estado = "DOMINICAL";
+
     } else if (!schedule) {
 
         estado = "SIN_HORARIO";
@@ -86,6 +93,11 @@ function construirEstadoDelDia(
         });
 
     }
+
+    const minutos =
+        estado === "DOMINICAL"
+            ? 0
+            : minutosTrabajados(registro?.entrada, registro?.salida);
 
     return {
 
@@ -109,17 +121,20 @@ function construirEstadoDelDia(
 
         marcaciones: registro?.marcaciones ?? [],
 
-        minutosTrabajados: minutosTrabajados(registro?.entrada, registro?.salida)
+        minutosTrabajados: minutos
 
     };
 
 }
 
-export async function getDailyStatus(fecha: Date): Promise<EmployeeDayStatus[]> {
+export async function getDailyStatus(
+    fecha: Date,
+    poblacion: Poblacion = "EMPLEADOS"
+): Promise<EmployeeDayStatus[]> {
 
     const fechaNormalizada = inicioDelDia(fecha);
 
-    const { empleados, horarioPorNombre } = await cargarContexto();
+    const { empleados, horarioPorNombre } = await cargarContexto(poblacion);
 
     const registros = await getAttendance({
         desde: fechaNormalizada,
@@ -170,12 +185,13 @@ function enumerarDias(desde: Date, hasta: Date): Date[] {
 
 export async function getRangeStatuses(
     desde: Date,
-    hasta: Date
+    hasta: Date,
+    poblacion: Poblacion = "EMPLEADOS"
 ): Promise<EmployeeDayStatus[]> {
 
     const dias = enumerarDias(desde, hasta);
 
-    const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d)));
+    const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d, poblacion)));
 
     return estadosPorDia.flat();
 
@@ -183,12 +199,13 @@ export async function getRangeStatuses(
 
 export async function getRangeSummary(
     desde: Date,
-    hasta: Date
+    hasta: Date,
+    poblacion: Poblacion = "EMPLEADOS"
 ): Promise<EmployeeWeekSummary[]> {
 
     const dias = enumerarDias(desde, hasta);
 
-    const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d)));
+    const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d, poblacion)));
 
     const resumenPorEmpleado = new Map<string, EmployeeWeekSummary>();
 
@@ -235,24 +252,28 @@ export async function getRangeSummary(
 
 }
 
-export async function getWeeklySummary(weekStart: Date): Promise<EmployeeWeekSummary[]> {
+export async function getWeeklySummary(
+    weekStart: Date,
+    poblacion: Poblacion = "EMPLEADOS"
+): Promise<EmployeeWeekSummary[]> {
 
     const lunes = startOfWeekMonday(weekStart);
 
-    return getRangeSummary(lunes, addDays(lunes, 6));
+    return getRangeSummary(lunes, addDays(lunes, 6), poblacion);
 
 }
 
 export async function getEmployeeWeekDetail(
     employeeId: string,
-    weekStart: Date
+    weekStart: Date,
+    poblacion: Poblacion = "EMPLEADOS"
 ): Promise<EmployeeDayStatus[]> {
 
     const lunes = startOfWeekMonday(weekStart);
 
     const dias = Array.from({ length: 7 }, (_, i) => addDays(lunes, i));
 
-    const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d)));
+    const estadosPorDia = await Promise.all(dias.map((d) => getDailyStatus(d, poblacion)));
 
     return estadosPorDia
         .map((estadosDelDia) =>
@@ -267,20 +288,44 @@ export interface TodayCounts {
     asistenciasHoy: number;
     tardanzas: number;
     ausentes: number;
+    estudiantesActivos: number;
+    estudiantesLlegadasHoy: number;
+    estudiantesTardanzas: number;
 }
 
 export async function getTodayCounts(): Promise<TodayCounts> {
 
     const empleados = await getEmployees();
-    const activos = empleados.filter((e) => e.estado === "ACTIVO").length;
 
-    const asistenciasHoy = await getTodayAttendanceCount();
+    const activos = empleados.filter(
+        (e) => e.estado === "ACTIVO" && !esEstudiante(e.dependencia)
+    ).length;
 
-    const estadosHoy = await getDailyStatus(new Date());
+    const estudiantesActivos = empleados.filter(
+        (e) => e.estado === "ACTIVO" && esEstudiante(e.dependencia)
+    ).length;
 
+    const hoy = new Date();
+
+    const estadosHoy = await getDailyStatus(hoy, "EMPLEADOS");
+
+    const asistenciasHoy = estadosHoy.filter((e) => e.entrada).length;
     const tardanzas = estadosHoy.filter((e) => e.estado === "TARDANZA").length;
     const ausentes = estadosHoy.filter((e) => e.estado === "AUSENTE").length;
 
-    return { empleados: activos, asistenciasHoy, tardanzas, ausentes };
+    const estadosEstudiantesHoy = await getDailyStatus(hoy, "ESTUDIANTES");
+
+    const estudiantesLlegadasHoy = estadosEstudiantesHoy.filter((e) => e.entrada).length;
+    const estudiantesTardanzas = estadosEstudiantesHoy.filter((e) => e.estado === "TARDANZA").length;
+
+    return {
+        empleados: activos,
+        asistenciasHoy,
+        tardanzas,
+        ausentes,
+        estudiantesActivos,
+        estudiantesLlegadasHoy,
+        estudiantesTardanzas
+    };
 
 }

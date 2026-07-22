@@ -1,13 +1,10 @@
 import {
     LayoutDashboard,
     Users,
-    ClipboardCheck,
-    Clock3,
     FileBarChart2,
     Settings,
     CalendarDays,
-    UserCircle,
-    Upload
+    GraduationCap
 } from "lucide-react";
 
 import { MenuItem } from "@/types/menu";
@@ -21,36 +18,21 @@ export const menu: MenuItem[] = [
     },
 
     {
-        title: "Empleados",
-        href: "/empleados",
+        title: "Personal",
         icon: Users,
+        children: [
+            { title: "Empleados", href: "/empleados" },
+            { title: "Asistencia", href: "/asistencia", roles: ["ADMINISTRADOR", "COORDINADOR"] },
+            { title: "Horarios", href: "/horarios", roles: ["ADMINISTRADOR", "COORDINADOR"] },
+            { title: "Importación", href: "/importacion", roles: ["ADMINISTRADOR", "COORDINADOR"] },
+        ],
     },
 
     {
-        title: "Asistencia",
-        href: "/asistencia",
-        icon: ClipboardCheck,
+        title: "Estudiantes",
+        href: "/estudiantes",
+        icon: GraduationCap,
         roles: ["ADMINISTRADOR", "COORDINADOR"],
-    },
-
-    {
-        title: "Importación",
-        href: "/importacion",
-        icon: Upload,
-        roles: ["ADMINISTRADOR", "COORDINADOR"],
-    },
-
-    {
-        title: "Horarios",
-        href: "/horarios",
-        icon: Clock3,
-        roles: ["ADMINISTRADOR", "COORDINADOR"],
-    },
-
-    {
-        title: "Reportes",
-        href: "/reportes",
-        icon: FileBarChart2,
     },
 
     {
@@ -61,16 +43,16 @@ export const menu: MenuItem[] = [
     },
 
     {
+        title: "Reportes",
+        href: "/reportes",
+        icon: FileBarChart2,
+    },
+
+    {
         title: "Configuración",
         href: "/configuracion",
         icon: Settings,
         roles: ["ADMINISTRADOR"],
-    },
-
-    {
-        title: "Mi Perfil",
-        href: "/perfil",
-        icon: UserCircle,
     },
 
 ];

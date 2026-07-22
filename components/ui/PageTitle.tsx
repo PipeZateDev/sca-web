@@ -18,7 +18,7 @@ export default function PageTitle({
 
         <div className="mb-8">
 
-            <h1 className="text-4xl font-bold text-[#0B4F8A]">
+            <h1 className="text-2xl font-bold text-[#0B4F8A] sm:text-3xl lg:text-4xl">
 
                 {title}
 

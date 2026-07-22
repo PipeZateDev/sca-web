@@ -26,7 +26,7 @@ export default function EmployeeDetail({ employee }: Props) {
 
     return (
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
             <Field label="Código" value={employee.codigo} />
             <Field label="Documento" value={`${employee.tipoDocumento} ${employee.documento}`} />
@@ -44,7 +44,7 @@ export default function EmployeeDetail({ employee }: Props) {
                 value={new Date(employee.fechaIngreso).toLocaleDateString("es-CO")}
             />
 
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
 
                 <Field label="Observaciones" value={employee.observaciones} />
 

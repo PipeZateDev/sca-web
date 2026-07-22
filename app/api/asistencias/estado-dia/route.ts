@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getDailyStatus } from "@/services/attendanceStatus.service";
 import { parseFechaISO } from "@/lib/dateParams";
+import { Poblacion } from "@/lib/students";
 
 export async function GET(request: NextRequest) {
 
@@ -11,7 +12,12 @@ export async function GET(request: NextRequest) {
 
         const fecha = fechaParam ? parseFechaISO(fechaParam) : new Date();
 
-        const estados = await getDailyStatus(fecha);
+        const poblacion: Poblacion =
+            request.nextUrl.searchParams.get("poblacion") === "estudiantes"
+                ? "ESTUDIANTES"
+                : "EMPLEADOS";
+
+        const estados = await getDailyStatus(fecha, poblacion);
 
         return NextResponse.json(estados);
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getEmployeeWeekDetail } from "@/services/attendanceStatus.service";
 import { parseFechaISO } from "@/lib/dateParams";
+import { Poblacion } from "@/lib/students";
 
 export async function GET(
     request: NextRequest,
@@ -16,7 +17,12 @@ export async function GET(
 
         const inicio = inicioParam ? parseFechaISO(inicioParam) : new Date();
 
-        const detalle = await getEmployeeWeekDetail(empleadoId, inicio);
+        const poblacion: Poblacion =
+            request.nextUrl.searchParams.get("poblacion") === "estudiantes"
+                ? "ESTUDIANTES"
+                : "EMPLEADOS";
+
+        const detalle = await getEmployeeWeekDetail(empleadoId, inicio, poblacion);
 
         return NextResponse.json(detalle);
 

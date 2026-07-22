@@ -10,19 +10,28 @@ import { useDailyStatus } from "@/hooks/useDailyStatus";
 interface Props {
     fecha: string;
     onFechaChange: (fecha: string) => void;
+    estudiantes?: boolean;
 }
 
 const SIN_HORARIO = "Sin horario asignado";
 
-export default function DailyStatusView({ fecha, onFechaChange }: Props) {
+export default function DailyStatusView({ fecha, onFechaChange, estudiantes = false }: Props) {
 
-    const { estados, loading } = useDailyStatus(fecha);
+    const { estados, loading } = useDailyStatus(fecha, estudiantes);
+
+    const visibles = useMemo(
+        () => estados.filter((e) => e.estado !== "DOMINICAL"),
+        [estados]
+    );
+
+    const esDomingoSinEvento =
+        !loading && estados.length > 0 && visibles.length === 0;
 
     const grupos = useMemo(() => {
 
         const mapa = new Map<string, EmployeeDayStatus[]>();
 
-        for (const estado of estados) {
+        for (const estado of visibles) {
 
             const clave = estado.horarioNombre ?? SIN_HORARIO;
 
@@ -51,7 +60,7 @@ export default function DailyStatusView({ fecha, onFechaChange }: Props) {
 
         });
 
-    }, [estados]);
+    }, [visibles]);
 
     return (
 
@@ -79,7 +88,13 @@ export default function DailyStatusView({ fecha, onFechaChange }: Props) {
             ) : estados.length === 0 ? (
 
                 <div className="rounded-2xl border bg-white p-10 text-center text-gray-500 shadow">
-                    No hay empleados activos.
+                    {estudiantes ? "No hay estudiantes activos." : "No hay empleados activos."}
+                </div>
+
+            ) : esDomingoSinEvento ? (
+
+                <div className="rounded-2xl border bg-blue-50 p-10 text-center text-blue-600 shadow">
+                    Domingo — Dominical. No hay asistencia laboral programada para este día.
                 </div>
 
             ) : (
@@ -97,7 +112,7 @@ export default function DailyStatusView({ fecha, onFechaChange }: Props) {
                             title={`${nombreGrupo} — ${aTiempo} a tiempo · ${tardanzas} tardanza(s) · ${ausentes} ausente(s)`}
                         >
 
-                            <div className="overflow-hidden rounded-2xl border bg-white shadow">
+                            <div className="overflow-x-auto rounded-2xl border bg-white shadow">
 
                                 <table className="w-full">
 
@@ -105,7 +120,7 @@ export default function DailyStatusView({ fecha, onFechaChange }: Props) {
 
                                         <tr>
 
-                                            <th className="p-4 text-left">Empleado</th>
+                                            <th className="p-4 text-left">{estudiantes ? "Estudiante" : "Empleado"}</th>
                                             <th className="text-left">Hora esperada</th>
                                             <th className="text-left">Entrada</th>
                                             <th className="text-left">Salida</th>

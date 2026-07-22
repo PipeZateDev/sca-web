@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import PageTitle from "@/components/ui/PageTitle";
 import EstadoBadge from "@/components/asistencia/EstadoBadge";
 import ReportTabs, { ReportTab } from "@/components/reportes/ReportTabs";
+import GraficasReport from "@/components/reportes/GraficasReport";
 
 import { AttendanceRecord } from "@/types/attendance";
 import { Employee } from "@/types/employee";
@@ -21,7 +22,9 @@ const NECESITA_RANGO: Record<ReportTab, boolean> = {
     horas: true,
     empleados: false,
     horarios: false,
-    festivos: false
+    festivos: false,
+    estudiantes: true,
+    graficas: true
 };
 
 function isoDaysAgo(days: number): string {
@@ -56,6 +59,7 @@ export default function ReportesContent() {
     const [horas, setHoras] = useState<EmployeeWeekSummary[]>([]);
     const [empleados, setEmpleados] = useState<Employee[]>([]);
     const [festivos, setFestivos] = useState<Holiday[]>([]);
+    const [estudiantes, setEstudiantes] = useState<EmployeeDayStatus[]>([]);
 
     useEffect(() => {
 
@@ -97,6 +101,32 @@ export default function ReportesContent() {
                     const data = await res.json();
                     if (!cancelado) setFestivos(Array.isArray(data) ? data : []);
 
+                } else if (tab === "estudiantes") {
+
+                    const res = await fetch(`/api/reportes/estados?desde=${desde}&hasta=${hasta}&poblacion=estudiantes`);
+                    const data = await res.json();
+                    if (!cancelado) setEstudiantes(Array.isArray(data) ? data : []);
+
+                } else if (tab === "graficas") {
+
+                    const [resEstados, resHoras, resEstudiantes] = await Promise.all([
+                        fetch(`/api/reportes/estados?desde=${desde}&hasta=${hasta}`),
+                        fetch(`/api/reportes/horas?desde=${desde}&hasta=${hasta}`),
+                        fetch(`/api/reportes/estados?desde=${desde}&hasta=${hasta}&poblacion=estudiantes`)
+                    ]);
+
+                    const [dataEstados, dataHoras, dataEstudiantes] = await Promise.all([
+                        resEstados.json(),
+                        resHoras.json(),
+                        resEstudiantes.json()
+                    ]);
+
+                    if (!cancelado) {
+                        setEstados(Array.isArray(dataEstados) ? dataEstados : []);
+                        setHoras(Array.isArray(dataHoras) ? dataHoras : []);
+                        setEstudiantes(Array.isArray(dataEstudiantes) ? dataEstudiantes : []);
+                    }
+
                 }
 
             } catch (err) {
@@ -126,6 +156,11 @@ export default function ReportesContent() {
     const ausencias = useMemo(
         () => estados.filter((e) => e.estado === "AUSENTE"),
         [estados]
+    );
+
+    const estudiantesVisibles = useMemo(
+        () => estudiantes.filter((e) => e.estado !== "DOMINICAL"),
+        [estudiantes]
     );
 
     const horariosAgrupados = useMemo(() => {
@@ -227,6 +262,18 @@ export default function ReportesContent() {
             }));
             filename = "festivos.csv";
 
+        } else if (tab === "estudiantes") {
+
+            columns = [
+                { key: "fecha", label: "Fecha" },
+                { key: "nombreCompleto", label: "Estudiante" },
+                { key: "horaEsperada", label: "Hora esperada" },
+                { key: "entrada", label: "Hora de llegada" },
+                { key: "estado", label: "Estado" }
+            ];
+            rows = estudiantesVisibles.map((r) => ({ ...r, fecha: formatFecha(r.fecha) }));
+            filename = `estudiantes_${desde}_${hasta}.csv`;
+
         }
 
         downloadCSV(filename, toCSV(rows, columns));
@@ -284,16 +331,31 @@ export default function ReportesContent() {
 
                 )}
 
-                <button
-                    onClick={handleExport}
-                    className="rounded-lg border border-green-700 px-5 py-2 font-medium text-green-700 transition hover:bg-green-50"
-                >
-                    Exportar CSV
-                </button>
+                {tab !== "graficas" && (
+
+                    <button
+                        onClick={handleExport}
+                        className="rounded-lg border border-green-700 px-5 py-2 font-medium text-green-700 transition hover:bg-green-50"
+                    >
+                        Exportar CSV
+                    </button>
+
+                )}
 
             </div>
 
-            {loading ? (
+            {tab === "graficas" ? (
+
+                <GraficasReport
+                    desde={desde}
+                    hasta={hasta}
+                    loading={loading}
+                    estadosPersonal={estados}
+                    horasPersonal={horas}
+                    estadosEstudiantes={estudiantes}
+                />
+
+            ) : loading ? (
 
                 <div className="rounded-2xl border bg-white p-10 text-center shadow">
                     Cargando...
@@ -301,7 +363,7 @@ export default function ReportesContent() {
 
             ) : (
 
-                <div className="overflow-hidden rounded-2xl border bg-white shadow">
+                <div className="overflow-x-auto rounded-2xl border bg-white shadow">
 
                     <table className="w-full">
 
@@ -470,6 +532,35 @@ export default function ReportesContent() {
                                             <td>{f.nombre}</td>
                                             <td>{f.tipo === "FESTIVO" ? "Festivo" : "Evento"}</td>
                                             <td>{f.horarios.length === 0 ? "Todos" : f.horarios.join(", ")}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </>
+
+                        )}
+
+                        {tab === "estudiantes" && (
+
+                            <>
+                                <thead className="bg-slate-100">
+                                    <tr>
+                                        <th className="p-4 text-left">Fecha</th>
+                                        <th className="text-left">Estudiante</th>
+                                        <th className="text-left">Hora esperada</th>
+                                        <th className="text-left">Hora de llegada</th>
+                                        <th className="text-left">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {estudiantesVisibles.length === 0 ? (
+                                        <tr><td colSpan={5} className="p-8 text-center text-gray-500">Sin registros en el rango seleccionado.</td></tr>
+                                    ) : estudiantesVisibles.map((r) => (
+                                        <tr key={`${r.empleadoId}-${String(r.fecha)}`} className="border-t">
+                                            <td className="p-4">{formatFecha(r.fecha)}</td>
+                                            <td>{r.nombreCompleto}</td>
+                                            <td>{r.horaEsperada ?? "-"}</td>
+                                            <td>{r.entrada ?? "-"}</td>
+                                            <td><EstadoBadge estado={r.estado} /></td>
                                         </tr>
                                     ))}
                                 </tbody>

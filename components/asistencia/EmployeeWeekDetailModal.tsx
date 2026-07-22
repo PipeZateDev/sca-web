@@ -56,7 +56,7 @@ export default function EmployeeWeekDetailModal({
 
                 <div className="flex flex-col gap-2">
 
-                    {dias.map((dia) => (
+                    {dias.filter((dia) => dia.estado !== "DOMINICAL").map((dia) => (
 
                         <div
                             key={String(dia.fecha)}

@@ -14,7 +14,8 @@ import {
     Upload,
     FileBarChart2,
     CalendarClock,
-    UserPlus
+    UserPlus,
+    GraduationCap
 } from "lucide-react";
 
 import { getTodayCounts } from "@/services/attendanceStatus.service";
@@ -29,7 +30,15 @@ export default async function DashboardPage() {
     const user = await getSessionUser();
     const puedeVerOperativo = user?.rol !== "CONSULTA";
 
-    const { empleados, asistenciasHoy, tardanzas, ausentes } = await getTodayCounts();
+    const {
+        empleados,
+        asistenciasHoy,
+        tardanzas,
+        ausentes,
+        estudiantesActivos,
+        estudiantesLlegadasHoy,
+        estudiantesTardanzas
+    } = await getTodayCounts();
 
     const hora = new Date().getHours();
 
@@ -142,6 +151,51 @@ export default async function DashboardPage() {
 
             </div>
 
+            {puedeVerOperativo && (
+
+                <Section title="Estudiantes">
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        <Link href="/estudiantes" className="block">
+
+                            <StatCard
+                                title="Estudiantes registrados"
+                                value={estudiantesActivos}
+                                icon={GraduationCap}
+                                color="#0B4F8A"
+                            />
+
+                        </Link>
+
+                        <Link href="/estudiantes" className="block">
+
+                            <StatCard
+                                title="Llegadas hoy"
+                                value={estudiantesLlegadasHoy}
+                                icon={ClipboardCheck}
+                                color="#0A8A2A"
+                            />
+
+                        </Link>
+
+                        <Link href="/estudiantes" className="block">
+
+                            <StatCard
+                                title="Tardanzas hoy"
+                                value={estudiantesTardanzas}
+                                icon={Clock3}
+                                color="#F59E0B"
+                            />
+
+                        </Link>
+
+                    </div>
+
+                </Section>
+
+            )}
+
             <Section title="Accesos rápidos">
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
@@ -182,6 +236,21 @@ export default async function DashboardPage() {
                             <CalendarClock className="mx-auto mb-3 text-orange-600" />
 
                             Horarios
+
+                        </Link>
+
+                    )}
+
+                    {puedeVerOperativo && (
+
+                        <Link
+                            href="/estudiantes"
+                            className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                        >
+
+                            <GraduationCap className="mx-auto mb-3 text-indigo-600" />
+
+                            Estudiantes
 
                         </Link>
 

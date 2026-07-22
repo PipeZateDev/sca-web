@@ -156,7 +156,7 @@ export default function ScheduleForm({
 
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                 <div className="flex flex-col gap-1">
 
@@ -204,7 +204,7 @@ export default function ScheduleForm({
 
                 {excepciones.map((exc, index) => (
 
-                    <div key={index} className="mb-2 grid grid-cols-4 items-center gap-2">
+                    <div key={index} className="mb-2 grid grid-cols-1 items-center gap-2 sm:grid-cols-4">
 
                         <select
                             value={exc.dia}

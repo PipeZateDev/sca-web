@@ -9,6 +9,7 @@ import EmployeeWeekDetailModal from "./EmployeeWeekDetailModal";
 interface Props {
     inicioISO: string;
     onInicioChange: (value: string) => void;
+    estudiantes?: boolean;
 }
 
 function formatHoras(minutos: number): string {
@@ -20,9 +21,9 @@ function formatHoras(minutos: number): string {
 
 }
 
-export default function WeeklySummaryView({ inicioISO, onInicioChange }: Props) {
+export default function WeeklySummaryView({ inicioISO, onInicioChange, estudiantes = false }: Props) {
 
-    const { resumen, loading } = useWeeklySummary(inicioISO);
+    const { resumen, loading } = useWeeklySummary(inicioISO, estudiantes);
 
     const [selected, setSelected] = useState<EmployeeWeekSummary | null>(null);
     const [detalle, setDetalle] = useState<EmployeeDayStatus[]>([]);
@@ -35,7 +36,7 @@ export default function WeeklySummaryView({ inicioISO, onInicioChange }: Props) 
 
         try {
 
-            const data = await fetchEmployeeWeekDetail(item.empleadoId, inicioISO);
+            const data = await fetchEmployeeWeekDetail(item.empleadoId, inicioISO, estudiantes);
 
             setDetalle(data);
 
@@ -72,7 +73,7 @@ export default function WeeklySummaryView({ inicioISO, onInicioChange }: Props) 
 
             ) : (
 
-                <div className="overflow-hidden rounded-2xl border bg-white shadow">
+                <div className="overflow-x-auto rounded-2xl border bg-white shadow">
 
                     <table className="w-full">
 
@@ -80,7 +81,7 @@ export default function WeeklySummaryView({ inicioISO, onInicioChange }: Props) 
 
                             <tr>
 
-                                <th className="p-4 text-left">Empleado</th>
+                                <th className="p-4 text-left">{estudiantes ? "Estudiante" : "Empleado"}</th>
                                 <th className="text-left">Horario</th>
                                 <th className="text-left">Horas trabajadas</th>
                                 <th className="text-left">Tardanzas</th>
@@ -97,7 +98,7 @@ export default function WeeklySummaryView({ inicioISO, onInicioChange }: Props) 
                                 <tr>
 
                                     <td colSpan={5} className="p-8 text-center text-gray-500">
-                                        No hay empleados activos.
+                                        {estudiantes ? "No hay estudiantes activos." : "No hay empleados activos."}
                                     </td>
 
                                 </tr>
