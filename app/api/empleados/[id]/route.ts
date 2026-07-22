@@ -5,6 +5,7 @@ import {
     updateEmployee,
     deleteEmployee
 } from "@/services/employee.service";
+import { requireEditor } from "@/lib/auth";
 
 export async function GET(
     _request: NextRequest,
@@ -46,6 +47,17 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
 
+    const editor = await requireEditor();
+
+    if (!editor) {
+
+        return NextResponse.json(
+            { message: "No autorizado" },
+            { status: 403 }
+        );
+
+    }
+
     try {
 
         const { id } = await params;
@@ -84,6 +96,17 @@ export async function DELETE(
     _request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const editor = await requireEditor();
+
+    if (!editor) {
+
+        return NextResponse.json(
+            { message: "No autorizado" },
+            { status: 403 }
+        );
+
+    }
 
     try {
 

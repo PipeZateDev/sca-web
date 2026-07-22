@@ -18,12 +18,16 @@ import {
 } from "lucide-react";
 
 import { getTodayCounts } from "@/services/attendanceStatus.service";
+import { getSessionUser } from "@/lib/auth";
 
 function isoToday(): string {
     return new Date().toISOString().slice(0, 10);
 }
 
 export default async function DashboardPage() {
+
+    const user = await getSessionUser();
+    const puedeVerOperativo = user?.rol !== "CONSULTA";
 
     const { empleados, asistenciasHoy, tardanzas, ausentes } = await getTodayCounts();
 
@@ -64,7 +68,20 @@ export default async function DashboardPage() {
 
                 </Link>
 
-                <Link href={asistenciaHoyHref} className="block">
+                {puedeVerOperativo ? (
+
+                    <Link href={asistenciaHoyHref} className="block">
+
+                        <StatCard
+                            title="Asistencias Hoy"
+                            value={asistenciasHoy}
+                            icon={ClipboardCheck}
+                            color="#0A8A2A"
+                        />
+
+                    </Link>
+
+                ) : (
 
                     <StatCard
                         title="Asistencias Hoy"
@@ -73,9 +90,22 @@ export default async function DashboardPage() {
                         color="#0A8A2A"
                     />
 
-                </Link>
+                )}
 
-                <Link href={asistenciaHoyHref} className="block">
+                {puedeVerOperativo ? (
+
+                    <Link href={asistenciaHoyHref} className="block">
+
+                        <StatCard
+                            title="Tardanzas"
+                            value={tardanzas}
+                            icon={Clock3}
+                            color="#F59E0B"
+                        />
+
+                    </Link>
+
+                ) : (
 
                     <StatCard
                         title="Tardanzas"
@@ -84,9 +114,22 @@ export default async function DashboardPage() {
                         color="#F59E0B"
                     />
 
-                </Link>
+                )}
 
-                <Link href={asistenciaHoyHref} className="block">
+                {puedeVerOperativo ? (
+
+                    <Link href={asistenciaHoyHref} className="block">
+
+                        <StatCard
+                            title="Ausencias"
+                            value={ausentes}
+                            icon={UserX}
+                            color="#DC2626"
+                        />
+
+                    </Link>
+
+                ) : (
 
                     <StatCard
                         title="Ausencias"
@@ -95,7 +138,7 @@ export default async function DashboardPage() {
                         color="#DC2626"
                     />
 
-                </Link>
+                )}
 
             </div>
 
@@ -103,16 +146,20 @@ export default async function DashboardPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
 
-                    <Link
-                        href="/importacion"
-                        className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
-                    >
+                    {puedeVerOperativo && (
 
-                        <Upload className="mx-auto mb-3 text-blue-700" />
+                        <Link
+                            href="/importacion"
+                            className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                        >
 
-                        Importar
+                            <Upload className="mx-auto mb-3 text-blue-700" />
 
-                    </Link>
+                            Importar
+
+                        </Link>
+
+                    )}
 
                     <Link
                         href="/empleados"
@@ -125,16 +172,20 @@ export default async function DashboardPage() {
 
                     </Link>
 
-                    <Link
-                        href="/horarios"
-                        className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
-                    >
+                    {puedeVerOperativo && (
 
-                        <CalendarClock className="mx-auto mb-3 text-orange-600" />
+                        <Link
+                            href="/horarios"
+                            className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                        >
 
-                        Horarios
+                            <CalendarClock className="mx-auto mb-3 text-orange-600" />
 
-                    </Link>
+                            Horarios
+
+                        </Link>
+
+                    )}
 
                     <Link
                         href="/reportes"

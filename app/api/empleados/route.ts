@@ -4,6 +4,7 @@ import {
     getEmployees,
     createNewEmployee
 } from "@/services/employee.service";
+import { requireEditor } from "@/lib/auth";
 
 export async function GET() {
 
@@ -27,6 +28,17 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+
+    const editor = await requireEditor();
+
+    if (!editor) {
+
+        return NextResponse.json(
+            { message: "No autorizado" },
+            { status: 403 }
+        );
+
+    }
 
     try {
 

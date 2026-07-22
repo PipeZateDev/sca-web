@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "SCA WEB",
+    title: "CONTROL DE ASISTENCIA",
     description: "Sistema de Control de Asistencia",
 };
 

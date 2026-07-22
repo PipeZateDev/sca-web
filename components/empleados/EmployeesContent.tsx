@@ -14,7 +14,11 @@ import { Employee } from "@/types/employee";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useSchedules } from "@/hooks/useSchedules";
 
-export default function EmployeesContent() {
+interface Props {
+    readOnly?: boolean;
+}
+
+export default function EmployeesContent({ readOnly = false }: Props) {
 
     const [open, setOpen] = useState(false);
     const [viewing, setViewing] = useState<Employee | null>(null);
@@ -132,6 +136,7 @@ export default function EmployeesContent() {
                     setEditing(null);
                     setOpen(true);
                 }}
+                readOnly={readOnly}
             />
 
             <EmployeeTable
@@ -145,6 +150,8 @@ export default function EmployeesContent() {
                 onEdit={handleEdit}
 
                 onDelete={handleDelete}
+
+                readOnly={readOnly}
 
             />
 

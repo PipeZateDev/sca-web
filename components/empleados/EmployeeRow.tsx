@@ -12,6 +12,8 @@ interface Props {
 
     onDelete: (employee: Employee) => void;
 
+    readOnly?: boolean;
+
 }
 
 export default function EmployeeRow({
@@ -22,7 +24,9 @@ export default function EmployeeRow({
 
     onEdit,
 
-    onDelete
+    onDelete,
+
+    readOnly = false
 
 }: Props) {
 
@@ -66,6 +70,7 @@ export default function EmployeeRow({
                     onView={() => onView(employee)}
                     onEdit={() => onEdit(employee)}
                     onDelete={() => onDelete(employee)}
+                    readOnly={readOnly}
                 />
 
             </td>

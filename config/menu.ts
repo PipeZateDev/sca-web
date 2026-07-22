@@ -30,18 +30,21 @@ export const menu: MenuItem[] = [
         title: "Asistencia",
         href: "/asistencia",
         icon: ClipboardCheck,
+        roles: ["ADMINISTRADOR", "COORDINADOR"],
     },
 
     {
         title: "Importación",
         href: "/importacion",
         icon: Upload,
+        roles: ["ADMINISTRADOR", "COORDINADOR"],
     },
 
     {
         title: "Horarios",
         href: "/horarios",
         icon: Clock3,
+        roles: ["ADMINISTRADOR", "COORDINADOR"],
     },
 
     {
@@ -54,6 +57,7 @@ export const menu: MenuItem[] = [
         title: "Festivos",
         href: "/festivos",
         icon: CalendarDays,
+        roles: ["ADMINISTRADOR", "COORDINADOR"],
     },
 
     {

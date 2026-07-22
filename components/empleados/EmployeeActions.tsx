@@ -8,6 +8,8 @@ interface Props {
 
     onDelete: () => void;
 
+    readOnly?: boolean;
+
 }
 
 export default function EmployeeActions({
@@ -16,7 +18,9 @@ export default function EmployeeActions({
 
     onEdit,
 
-    onDelete
+    onDelete,
+
+    readOnly = false
 
 }: Props) {
 
@@ -34,25 +38,33 @@ export default function EmployeeActions({
 
             </button>
 
-            <button
-                onClick={onEdit}
-                title="Editar"
-                className="rounded-full p-2 text-green-600 transition-all duration-150 hover:scale-110 hover:bg-green-100"
-            >
+            {!readOnly && (
 
-                <Pencil size={18} />
+                <>
 
-            </button>
+                    <button
+                        onClick={onEdit}
+                        title="Editar"
+                        className="rounded-full p-2 text-green-600 transition-all duration-150 hover:scale-110 hover:bg-green-100"
+                    >
 
-            <button
-                onClick={onDelete}
-                title="Eliminar"
-                className="rounded-full p-2 text-red-600 transition-all duration-150 hover:scale-110 hover:bg-red-100"
-            >
+                        <Pencil size={18} />
 
-                <Trash2 size={18} />
+                    </button>
 
-            </button>
+                    <button
+                        onClick={onDelete}
+                        title="Eliminar"
+                        className="rounded-full p-2 text-red-600 transition-all duration-150 hover:scale-110 hover:bg-red-100"
+                    >
+
+                        <Trash2 size={18} />
+
+                    </button>
+
+                </>
+
+            )}
 
         </div>
 

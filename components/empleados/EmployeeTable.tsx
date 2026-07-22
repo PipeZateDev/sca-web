@@ -15,6 +15,8 @@ interface EmployeeTableProps {
 
     onDelete: (employee: Employee) => void;
 
+    readOnly?: boolean;
+
 }
 
 export default function EmployeeTable({
@@ -27,7 +29,9 @@ export default function EmployeeTable({
 
     onEdit,
 
-    onDelete
+    onDelete,
+
+    readOnly = false
 
 }: EmployeeTableProps) {
 
@@ -128,6 +132,7 @@ export default function EmployeeTable({
                                 onView={onView}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
+                                readOnly={readOnly}
                             />
 
                         ))

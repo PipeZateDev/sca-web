@@ -4,12 +4,14 @@ interface EmployeeToolbarProps {
     query: string;
     onQueryChange: (value: string) => void;
     onNewEmployee: () => void;
+    readOnly?: boolean;
 }
 
 export default function EmployeeToolbar({
     query,
     onQueryChange,
     onNewEmployee,
+    readOnly = false,
 }: EmployeeToolbarProps) {
     return (
         <div className="mb-6 flex flex-col gap-4 rounded-xl bg-white p-4 shadow md:flex-row md:items-center md:justify-between">
@@ -24,12 +26,16 @@ export default function EmployeeToolbar({
                 />
             </div>
 
-            <button
-                onClick={onNewEmployee}
-                className="rounded-lg bg-green-700 px-5 py-2 font-medium text-white transition hover:bg-green-800"
-            >
-                + Nuevo empleado
-            </button>
+            {!readOnly && (
+
+                <button
+                    onClick={onNewEmployee}
+                    className="rounded-lg bg-green-700 px-5 py-2 font-medium text-white transition hover:bg-green-800"
+                >
+                    + Nuevo empleado
+                </button>
+
+            )}
 
         </div>
     );

@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { importAttendanceWorkbook } from "@/services/attendance.service";
+import { requireEditor } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
+
+    const editor = await requireEditor();
+
+    if (!editor) {
+
+        return NextResponse.json(
+            { message: "No autorizado" },
+            { status: 403 }
+        );
+
+    }
 
     try {
 

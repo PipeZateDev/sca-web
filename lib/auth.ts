@@ -74,12 +74,24 @@ export async function getSessionUser(): Promise<SessionPayload | null> {
 
 }
 
-export async function requireAdmin(): Promise<SessionPayload | null> {
+export async function requireRole(roles: Role[]): Promise<SessionPayload | null> {
 
     const session = await getSessionUser();
 
-    if (!session || session.rol !== "ADMINISTRADOR") return null;
+    if (!session || !roles.includes(session.rol)) return null;
 
     return session;
+
+}
+
+export async function requireAdmin(): Promise<SessionPayload | null> {
+
+    return requireRole(["ADMINISTRADOR"]);
+
+}
+
+export async function requireEditor(): Promise<SessionPayload | null> {
+
+    return requireRole(["ADMINISTRADOR", "COORDINADOR"]);
 
 }

@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { deleteHoliday } from "@/services/holiday.service";
+import { requireEditor } from "@/lib/auth";
 
 export async function DELETE(
     _request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const editor = await requireEditor();
+
+    if (!editor) {
+
+        return NextResponse.json(
+            { message: "No autorizado" },
+            { status: 403 }
+        );
+
+    }
 
     try {
 
