@@ -9,6 +9,10 @@ interface Props {
 
     onCancel: () => void;
 
+    scheduleNames?: string[];
+
+    initialValue?: Employee;
+
 }
 
 const initialState: Partial<Employee> = {
@@ -47,11 +51,15 @@ export default function EmployeeForm({
 
     onSave,
 
-    onCancel
+    onCancel,
+
+    scheduleNames = [],
+
+    initialValue
 
 }: Props) {
 
-    const [form, setForm] = useState(initialState);
+    const [form, setForm] = useState(initialValue ?? initialState);
 
     const [saving, setSaving] = useState(false);
 
@@ -109,7 +117,7 @@ export default function EmployeeForm({
 
         setSaving(false);
 
-        if (ok) {
+        if (ok && !initialValue) {
 
             setForm(initialState);
 
@@ -210,21 +218,34 @@ export default function EmployeeForm({
                 className="border rounded-lg p-2"
             />
 
-            <input
+            <select
                 name="horario"
                 value={form.horario}
                 onChange={handleChange}
-                placeholder="Horario"
                 className="border rounded-lg p-2"
-            />
+            >
 
-            <input
-                name="biometrico"
-                value={form.biometrico}
-                onChange={handleChange}
-                placeholder="Código biométrico"
-                className="border rounded-lg p-2"
-            />
+                <option value="">Sin horario asignado</option>
+
+                {scheduleNames.map((nombre) => (
+                    <option key={nombre} value={nombre}>
+                        {nombre}
+                    </option>
+                ))}
+
+            </select>
+
+            <div className="flex flex-col justify-center rounded-lg border bg-gray-50 p-2">
+
+                <span className="text-xs text-gray-500">
+                    Código biométrico (asignado por el dispositivo)
+                </span>
+
+                <span className="text-gray-700">
+                    {form.biometrico || "Sin asignar — se completa al importar asistencias"}
+                </span>
+
+            </div>
 
             <select
                 name="estado"

@@ -6,11 +6,23 @@ interface Props {
 
     employee: Employee;
 
+    onView: (employee: Employee) => void;
+
+    onEdit: (employee: Employee) => void;
+
+    onDelete: (employee: Employee) => void;
+
 }
 
 export default function EmployeeRow({
 
     employee,
+
+    onView,
+
+    onEdit,
+
+    onDelete
 
 }: Props) {
 
@@ -22,9 +34,25 @@ export default function EmployeeRow({
 
             <td>{employee.nombre}</td>
 
+            <td>{employee.apellidos}</td>
+
             <td>{employee.cargo}</td>
 
-            <td>{employee.dependencia}</td>
+            <td>
+
+                {employee.horario ? (
+
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
+                        {employee.horario}
+                    </span>
+
+                ) : (
+
+                    <span className="text-gray-400">Sin asignar</span>
+
+                )}
+
+            </td>
 
             <td>
 
@@ -34,7 +62,11 @@ export default function EmployeeRow({
 
             <td>
 
-                <EmployeeActions />
+                <EmployeeActions
+                    onView={() => onView(employee)}
+                    onEdit={() => onEdit(employee)}
+                    onDelete={() => onDelete(employee)}
+                />
 
             </td>
 

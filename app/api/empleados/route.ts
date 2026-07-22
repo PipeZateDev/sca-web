@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
 
+        delete body.biometrico;
+
         const empleado = await createNewEmployee(body);
 
         return NextResponse.json(empleado, { status: 201 });

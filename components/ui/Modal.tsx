@@ -14,7 +14,7 @@ interface Props {
 
 }
 
-export default function EmployeeModal({
+export default function Modal({
 
     open,
 

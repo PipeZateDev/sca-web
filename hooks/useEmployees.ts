@@ -92,6 +92,82 @@ export function useEmployees() {
 
     }
 
+    async function updateEmployee(id: string, employee: Partial<Employee>) {
+
+        try {
+
+            const response = await fetch(`/api/empleados/${id}`, {
+
+                method: "PUT",
+
+                headers: {
+
+                    "Content-Type": "application/json"
+
+                },
+
+                body: JSON.stringify(employee)
+
+            });
+
+            if (!response.ok) {
+
+                throw new Error();
+
+            }
+
+            toast.success("Empleado actualizado correctamente.");
+
+            await loadEmployees();
+
+            return true;
+
+        } catch (error) {
+
+            console.error(error);
+
+            toast.error("No fue posible actualizar el empleado.");
+
+            return false;
+
+        }
+
+    }
+
+    async function deleteEmployee(id: string) {
+
+        try {
+
+            const response = await fetch(`/api/empleados/${id}`, {
+
+                method: "DELETE"
+
+            });
+
+            if (!response.ok) {
+
+                throw new Error();
+
+            }
+
+            toast.success("Empleado eliminado correctamente.");
+
+            await loadEmployees();
+
+            return true;
+
+        } catch (error) {
+
+            console.error(error);
+
+            toast.error("No fue posible eliminar el empleado.");
+
+            return false;
+
+        }
+
+    }
+
     useEffect(() => {
 
         loadEmployees();
@@ -108,7 +184,11 @@ export function useEmployees() {
 
         reload: loadEmployees,
 
-        createEmployee
+        createEmployee,
+
+        updateEmployee,
+
+        deleteEmployee
 
     };
 

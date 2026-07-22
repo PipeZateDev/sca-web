@@ -9,13 +9,25 @@ interface EmployeeTableProps {
 
     loading: boolean;
 
+    onView: (employee: Employee) => void;
+
+    onEdit: (employee: Employee) => void;
+
+    onDelete: (employee: Employee) => void;
+
 }
 
 export default function EmployeeTable({
 
     employees,
 
-    loading
+    loading,
+
+    onView,
+
+    onEdit,
+
+    onDelete
 
 }: EmployeeTableProps) {
 
@@ -57,13 +69,19 @@ export default function EmployeeTable({
 
                         <th className="text-left">
 
+                            Apellidos
+
+                        </th>
+
+                        <th className="text-left">
+
                             Cargo
 
                         </th>
 
                         <th className="text-left">
 
-                            Dependencia
+                            Horario
 
                         </th>
 
@@ -90,11 +108,11 @@ export default function EmployeeTable({
                         <tr>
 
                             <td
-                                colSpan={6}
+                                colSpan={7}
                                 className="p-8 text-center text-gray-500"
                             >
 
-                                No existen empleados registrados.
+                                No se encontraron empleados.
 
                             </td>
 
@@ -107,6 +125,9 @@ export default function EmployeeTable({
                             <EmployeeRow
                                 key={employee._id ?? employee.documento}
                                 employee={employee}
+                                onView={onView}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
                             />
 
                         ))

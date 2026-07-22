@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import MainLayout from "@/components/layout/MainLayout";
 
 import PageTitle from "@/components/ui/PageTitle";
@@ -15,12 +17,15 @@ import {
     UserPlus
 } from "lucide-react";
 
-export default function DashboardPage() {
+import { getTodayCounts } from "@/services/attendanceStatus.service";
 
-    const empleados = 0;
-    const asistencias = 0;
-    const tardanzas = 0;
-    const ausencias = 0;
+function isoToday(): string {
+    return new Date().toISOString().slice(0, 10);
+}
+
+export default async function DashboardPage() {
+
+    const { empleados, asistenciasHoy, tardanzas, ausentes } = await getTodayCounts();
 
     const hora = new Date().getHours();
 
@@ -32,13 +37,15 @@ export default function DashboardPage() {
     else if (hora < 18)
         saludo = "Buenas tardes";
 
+    const asistenciaHoyHref = `/asistencia?vista=dia&fecha=${isoToday()}`;
+
     return (
 
         <MainLayout>
 
             <PageTitle
 
-                title={`${saludo}, Juan Felipe 👋`}
+                title={`${saludo} 👋`}
 
                 subtitle="Bienvenido al Sistema de Control de Asistencia"
 
@@ -46,33 +53,49 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-                <StatCard
-                    title="Empleados"
-                    value={empleados}
-                    icon={Users}
-                    color="#0B4F8A"
-                />
+                <Link href="/empleados" className="block">
 
-                <StatCard
-                    title="Asistencias Hoy"
-                    value={asistencias}
-                    icon={ClipboardCheck}
-                    color="#0A8A2A"
-                />
+                    <StatCard
+                        title="Empleados"
+                        value={empleados}
+                        icon={Users}
+                        color="#0B4F8A"
+                    />
 
-                <StatCard
-                    title="Tardanzas"
-                    value={tardanzas}
-                    icon={Clock3}
-                    color="#F59E0B"
-                />
+                </Link>
 
-                <StatCard
-                    title="Ausencias"
-                    value={ausencias}
-                    icon={UserX}
-                    color="#DC2626"
-                />
+                <Link href={asistenciaHoyHref} className="block">
+
+                    <StatCard
+                        title="Asistencias Hoy"
+                        value={asistenciasHoy}
+                        icon={ClipboardCheck}
+                        color="#0A8A2A"
+                    />
+
+                </Link>
+
+                <Link href={asistenciaHoyHref} className="block">
+
+                    <StatCard
+                        title="Tardanzas"
+                        value={tardanzas}
+                        icon={Clock3}
+                        color="#F59E0B"
+                    />
+
+                </Link>
+
+                <Link href={asistenciaHoyHref} className="block">
+
+                    <StatCard
+                        title="Ausencias"
+                        value={ausentes}
+                        icon={UserX}
+                        color="#DC2626"
+                    />
+
+                </Link>
 
             </div>
 
@@ -80,37 +103,49 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
 
-                    <button className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center">
+                    <Link
+                        href="/importacion"
+                        className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                    >
 
                         <Upload className="mx-auto mb-3 text-blue-700" />
 
                         Importar
 
-                    </button>
+                    </Link>
 
-                    <button className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center">
+                    <Link
+                        href="/empleados"
+                        className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                    >
 
                         <UserPlus className="mx-auto mb-3 text-green-700" />
 
                         Empleados
 
-                    </button>
+                    </Link>
 
-                    <button className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center">
+                    <Link
+                        href="/horarios"
+                        className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                    >
 
                         <CalendarClock className="mx-auto mb-3 text-orange-600" />
 
                         Horarios
 
-                    </button>
+                    </Link>
 
-                    <button className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center">
+                    <Link
+                        href="/reportes"
+                        className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                    >
 
                         <FileBarChart2 className="mx-auto mb-3 text-purple-700" />
 
                         Reportes
 
-                    </button>
+                    </Link>
 
                 </div>
 

@@ -6,7 +6,8 @@ import {
     FileBarChart2,
     Settings,
     CalendarDays,
-    UserCircle
+    UserCircle,
+    Upload
 } from "lucide-react";
 
 import { MenuItem } from "@/types/menu";
@@ -29,6 +30,12 @@ export const menu: MenuItem[] = [
         title: "Asistencia",
         href: "/asistencia",
         icon: ClipboardCheck,
+    },
+
+    {
+        title: "Importación",
+        href: "/importacion",
+        icon: Upload,
     },
 
     {

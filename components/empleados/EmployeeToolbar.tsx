@@ -1,10 +1,14 @@
 "use client";
 
 interface EmployeeToolbarProps {
+    query: string;
+    onQueryChange: (value: string) => void;
     onNewEmployee: () => void;
 }
 
 export default function EmployeeToolbar({
+    query,
+    onQueryChange,
     onNewEmployee,
 }: EmployeeToolbarProps) {
     return (
@@ -13,7 +17,9 @@ export default function EmployeeToolbar({
             <div className="flex-1">
                 <input
                     type="text"
-                    placeholder="Buscar empleado..."
+                    value={query}
+                    onChange={(e) => onQueryChange(e.target.value)}
+                    placeholder="Buscar empleado por documento, nombre, cargo, horario, estado..."
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none transition focus:border-green-600"
                 />
             </div>
