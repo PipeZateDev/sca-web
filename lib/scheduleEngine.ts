@@ -1,4 +1,5 @@
 import { DiaSemana, Schedule } from "@/types/schedule";
+import { anclarFechaBogota } from "@/lib/timezone";
 
 export const DIA_POR_INDICE: DiaSemana[] = [
     "DOMINGO",
@@ -12,7 +13,7 @@ export const DIA_POR_INDICE: DiaSemana[] = [
 
 export function diaSemanaDe(fecha: Date): DiaSemana {
 
-    return DIA_POR_INDICE[fecha.getDay()];
+    return DIA_POR_INDICE[fecha.getUTCDay()];
 
 }
 
@@ -71,7 +72,7 @@ export function addDays(fecha: Date, dias: number): Date {
 
     const resultado = new Date(fecha);
 
-    resultado.setDate(resultado.getDate() + dias);
+    resultado.setUTCDate(resultado.getUTCDate() + dias);
 
     return resultado;
 
@@ -79,11 +80,9 @@ export function addDays(fecha: Date, dias: number): Date {
 
 export function startOfWeekMonday(fecha: Date): Date {
 
-    const dia = new Date(fecha);
+    const dia = anclarFechaBogota(fecha);
 
-    dia.setHours(0, 0, 0, 0);
-
-    const indice = dia.getDay();
+    const indice = dia.getUTCDay();
 
     const diferenciaHastaLunes = indice === 0 ? -6 : 1 - indice;
 

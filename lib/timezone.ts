@@ -1,5 +1,38 @@
 export const ZONA_HORARIA_COLEGIO = "America/Bogota";
 
+// Bogotá no tiene horario de verano: siempre es UTC-5. Todas las fechas de
+// calendario de la app se anclan a este instante fijo (medianoche Bogotá,
+// expresada en UTC) para que representen siempre el mismo instante real sin
+// importar en qué zona horaria corra el proceso (servidor local vs Vercel,
+// que siempre corre en UTC). Antes, varias funciones usaban `new Date(y,m,d)`
+// (zona horaria "ambiente" del proceso), lo que hacía que la misma fecha de
+// calendario se guardara con una hora UTC distinta según el entorno,
+// generando registros duplicados/invisibles entre local y producción.
+const OFFSET_BOGOTA_HORAS_UTC = 5;
+
+/**
+ * Construye el instante UTC que representa la medianoche de Bogotá para el
+ * año/mes(0-indexado)/día dados. Es el "ancla" que debe usarse siempre en vez
+ * de `new Date(anio, mes, dia)`.
+ */
+export function construirFechaBogota(anio: number, mesIndiceCero: number, dia: number): Date {
+
+    return new Date(Date.UTC(anio, mesIndiceCero, dia, OFFSET_BOGOTA_HORAS_UTC, 0, 0));
+
+}
+
+/**
+ * Dado cualquier instante ya anclado a una medianoche Bogotá (por ejemplo,
+ * resultado de construirFechaBogota o de sumarle días), devuelve el ancla del
+ * mismo día. Sirve para normalizar sin volver a depender de la zona horaria
+ * del proceso.
+ */
+export function anclarFechaBogota(momento: Date): Date {
+
+    return construirFechaBogota(momento.getUTCFullYear(), momento.getUTCMonth(), momento.getUTCDate());
+
+}
+
 /**
  * Colombia no tiene horario de verano, así que Bogotá siempre es UTC-5,
  * pero de todos modos se resuelve vía Intl (no con un offset fijo) para
@@ -20,7 +53,7 @@ export function fechaBogota(momento: Date = new Date()): Date {
 
     const [y, m, d] = isoFechaBogota(momento).split("-").map(Number);
 
-    return new Date(y, m - 1, d);
+    return construirFechaBogota(y, m - 1, d);
 
 }
 
@@ -73,7 +106,7 @@ export function ultimoDiaDelMes(mesISO: string): string {
 
     const [anio, mes] = mesISO.split("-").map(Number);
 
-    const dia = new Date(anio, mes, 0).getDate();
+    const dia = new Date(Date.UTC(anio, mes, 0)).getUTCDate();
 
     return `${mesISO}-${String(dia).padStart(2, "0")}`;
 

@@ -12,6 +12,7 @@ import {
 
 import { parseAttendanceWorkbook } from "@/lib/parsers/attendanceWorkbook";
 import { esEstudiante, DEPENDENCIA_ESTUDIANTE } from "@/lib/students";
+import { esVarianteDeDocente, DEPENDENCIA_DOCENTES, HORARIO_DOCENTES } from "@/lib/teachers";
 import { fechaBogota } from "@/lib/timezone";
 
 export interface ImportAttendanceSummary {
@@ -90,16 +91,44 @@ export async function importAttendanceWorkbook(
 
             }
 
+            if (esVarianteDeDocente(registro.departamento) && empleado._id) {
+
+                const cambios: Partial<Employee> = {};
+
+                if (empleado.dependencia !== DEPENDENCIA_DOCENTES) {
+                    cambios.dependencia = DEPENDENCIA_DOCENTES;
+                }
+
+                if (!empleado.horario) {
+                    cambios.horario = HORARIO_DOCENTES;
+                }
+
+                if (Object.keys(cambios).length > 0) {
+
+                    const actualizado = await updateEmployee(empleado._id, cambios);
+
+                    if (actualizado) {
+                        empleado = actualizado;
+                        empleadosPorBiometrico.set(registro.biometricoId, actualizado);
+                    }
+
+                }
+
+            }
+
         } else {
 
             const { nombre, apellidos } = splitNombre(registro.nombre);
+
+            const esDocente = esVarianteDeDocente(registro.departamento);
 
             const nuevo = await createNewEmployee({
                 codigo: registro.biometricoId,
                 biometrico: registro.biometricoId,
                 nombre,
                 apellidos,
-                dependencia: registro.departamento,
+                dependencia: esDocente ? DEPENDENCIA_DOCENTES : registro.departamento,
+                horario: esDocente ? HORARIO_DOCENTES : undefined,
                 estado: "ACTIVO"
             });
 
@@ -241,7 +270,7 @@ export async function getTodayAttendanceCount(): Promise<number> {
     const hoy = fechaBogota();
 
     const manana = new Date(hoy);
-    manana.setDate(manana.getDate() + 1);
+    manana.setUTCDate(manana.getUTCDate() + 1);
 
     const distintos = await collection.distinct("biometricoId", {
         fecha: { $gte: hoy, $lt: manana }

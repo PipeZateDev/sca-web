@@ -19,17 +19,9 @@ import { getSchedules } from "@/services/schedule.service";
 import { getAttendance } from "@/services/attendance.service";
 import { getHolidaysForDate } from "@/services/holiday.service";
 import { esEstudiante, Poblacion } from "@/lib/students";
-import { fechaBogota } from "@/lib/timezone";
+import { fechaBogota, anclarFechaBogota } from "@/lib/timezone";
 
-function inicioDelDia(fecha: Date): Date {
-
-    const resultado = new Date(fecha);
-
-    resultado.setHours(0, 0, 0, 0);
-
-    return resultado;
-
-}
+const inicioDelDia = anclarFechaBogota;
 
 async function cargarContexto(poblacion: Poblacion = "EMPLEADOS") {
 

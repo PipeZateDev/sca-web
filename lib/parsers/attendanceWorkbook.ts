@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import { construirFechaBogota } from "@/lib/timezone";
 
 export interface ParsedAttendancePunch {
     biometricoId: string;
@@ -24,7 +25,7 @@ function parseDdMmYyyy(text: string): Date {
 
     const [dia, mes, anio] = text.split("/").map(Number);
 
-    return new Date(anio, mes - 1, dia);
+    return construirFechaBogota(anio, mes - 1, dia);
 
 }
 
@@ -122,7 +123,7 @@ export function parseAttendanceWorkbook(
             if (marcaciones.length === 0) continue;
 
             const fecha = new Date(periodoInicio);
-            fecha.setDate(fecha.getDate() + dia);
+            fecha.setUTCDate(fecha.getUTCDate() + dia);
 
             registros.push({ biometricoId, nombre, departamento, fecha, marcaciones });
 

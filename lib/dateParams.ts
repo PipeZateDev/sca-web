@@ -1,7 +1,9 @@
+import { construirFechaBogota } from "@/lib/timezone";
+
 export function parseFechaISO(valor: string): Date {
 
     const [anio, mes, dia] = valor.split("-").map(Number);
 
-    return new Date(anio, mes - 1, dia);
+    return construirFechaBogota(anio, mes - 1, dia);
 
 }
