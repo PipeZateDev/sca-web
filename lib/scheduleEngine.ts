@@ -23,10 +23,11 @@ export interface HorasEsperadas {
 
 export function resolveHorasEsperadas(
     schedule: Schedule,
-    dia: DiaSemana
+    dia: DiaSemana,
+    ignorarDiasLaborales = false
 ): HorasEsperadas | null {
 
-    if (!schedule.dias.includes(dia)) {
+    if (!ignorarDiasLaborales && !schedule.dias.includes(dia)) {
         return null;
     }
 

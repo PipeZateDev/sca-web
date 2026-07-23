@@ -61,19 +61,37 @@ function construirEstadoDelDia(
 
     const dia = diaSemanaDe(fecha);
 
-    const horasEsperadas = schedule
-        ? resolveHorasEsperadas(schedule, dia)
-        : null;
-
-    const festivoAplicable = festivosDelDia.some((f) =>
+    const festivosAplicables = festivosDelDia.filter((f) =>
         festivoAplica(f.horarios, empleado.horario)
     );
 
+    const esFestivoNoLaboral = festivosAplicables.some((f) => f.tipo === "FESTIVO");
+    const esEventoProgramado = festivosAplicables.some((f) => f.tipo === "EVENTO");
+
+    // Un domingo con un evento programado sí cuenta como día laboral (llegadas, tardanzas, horas);
+    // un domingo sin evento, o cualquier festivo oficial, se omite siempre de los conteos.
+    const esEventoDominical = dia === "DOMINGO" && esEventoProgramado;
+
+    const horasEsperadas = schedule
+        ? resolveHorasEsperadas(schedule, dia, esEventoDominical)
+        : null;
+
     let estado: AttendanceEstado;
 
-    if (festivoAplicable) {
+    if (esFestivoNoLaboral || (esEventoProgramado && !esEventoDominical)) {
 
         estado = "FESTIVO";
+
+    } else if (esEventoDominical) {
+
+        estado = schedule
+            ? calcularEstado({
+                horaEsperada: horasEsperadas?.horaEntrada ?? null,
+                entrada: registro?.entrada,
+                fecha,
+                hoy
+            })
+            : "SIN_HORARIO";
 
     } else if (dia === "DOMINGO") {
 
@@ -95,7 +113,7 @@ function construirEstadoDelDia(
     }
 
     const minutos =
-        estado === "DOMINICAL"
+        estado === "DOMINICAL" || estado === "FESTIVO"
             ? 0
             : minutosTrabajados(registro?.entrada, registro?.salida);
 
