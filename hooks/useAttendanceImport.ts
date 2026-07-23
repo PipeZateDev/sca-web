@@ -33,7 +33,7 @@ export function useAttendanceImport() {
             setResumen(data);
 
             toast.success(
-                `Importación completada: ${data.registrosImportados} registros.`
+                `Importación completada: ${data.registrosImportados} registros nuevos o completados.`
             );
 
             return data as ImportAttendanceSummary;

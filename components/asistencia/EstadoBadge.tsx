@@ -2,8 +2,8 @@ import { AttendanceEstado } from "@/lib/scheduleEngine";
 
 const ESTILOS: Record<AttendanceEstado, { label: string; className: string }> = {
 
-    A_TIEMPO: { label: "A tiempo", className: "bg-green-100 text-green-800" },
-    TARDANZA: { label: "Tardanza", className: "bg-amber-100 text-amber-800" },
+    A_TIEMPO: { label: "A tiempo", className: "bg-gray-100 text-gray-600" },
+    TARDANZA: { label: "Tardanza", className: "bg-orange-100 text-orange-800" },
     AUSENTE: { label: "Ausente", className: "bg-red-100 text-red-800" },
     PENDIENTE: { label: "Pendiente", className: "bg-slate-100 text-slate-500" },
     SIN_HORARIO: { label: "Sin horario", className: "bg-slate-100 text-slate-500" },

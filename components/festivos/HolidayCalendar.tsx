@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { Holiday } from "@/types/holiday";
+import { fechaBogota } from "@/lib/timezone";
 
 interface Props {
     holidays: Holiday[];
@@ -29,7 +30,7 @@ function toISO(date: Date): string {
 export default function HolidayCalendar({ holidays, onDayClick }: Props) {
 
     const [cursor, setCursor] = useState(() => {
-        const d = new Date();
+        const d = fechaBogota();
         d.setDate(1);
         return d;
     });

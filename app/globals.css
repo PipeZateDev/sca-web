@@ -128,3 +128,25 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  @page {
+    size: letter;
+    margin-top: 2cm;
+    margin-right: 0.3in;
+    margin-bottom: 0.3in;
+    margin-left: 0.3in;
+  }
+  body * {
+    visibility: hidden;
+  }
+  [data-print-area], [data-print-area] * {
+    visibility: visible;
+  }
+  [data-print-area] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

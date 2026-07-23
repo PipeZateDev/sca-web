@@ -14,6 +14,7 @@ import { Holiday } from "@/types/holiday";
 import { EmployeeDayStatus, EmployeeWeekSummary } from "@/types/attendanceStatus";
 import { aMinutos } from "@/lib/scheduleEngine";
 import { toCSV, downloadCSV, CsvColumn } from "@/lib/csv";
+import { isoFechaBogota, mesActualBogota, rangoDelMes } from "@/lib/timezone";
 
 const NECESITA_RANGO: Record<ReportTab, boolean> = {
     asistencia: true,
@@ -27,16 +28,6 @@ const NECESITA_RANGO: Record<ReportTab, boolean> = {
     graficas: true
 };
 
-function isoDaysAgo(days: number): string {
-    const date = new Date();
-    date.setDate(date.getDate() - days);
-    return date.toISOString().slice(0, 10);
-}
-
-function isoToday(): string {
-    return new Date().toISOString().slice(0, 10);
-}
-
 function formatFecha(fecha: Date | string): string {
     return new Date(fecha).toLocaleDateString("es-CO");
 }
@@ -49,9 +40,11 @@ function formatHoras(minutos: number): string {
 
 export default function ReportesContent() {
 
-    const [tab, setTab] = useState<ReportTab>("asistencia");
-    const [desde, setDesde] = useState(isoDaysAgo(30));
-    const [hasta, setHasta] = useState(isoToday());
+    const rangoInicial = rangoDelMes(mesActualBogota());
+
+    const [tab, setTab] = useState<ReportTab>("graficas");
+    const [desde, setDesde] = useState(rangoInicial.desde);
+    const [hasta, setHasta] = useState(rangoInicial.hasta);
     const [loading, setLoading] = useState(false);
 
     const [asistencia, setAsistencia] = useState<AttendanceRecord[]>([]);
@@ -181,6 +174,26 @@ export default function ReportesContent() {
 
     }, [empleados]);
 
+    function handleHoy() {
+
+        const hoy = isoFechaBogota();
+
+        setDesde(hoy);
+        setHasta(hoy);
+
+    }
+
+    function handleMesChange(mesISO: string) {
+
+        if (!mesISO) return;
+
+        const { desde: nuevoDesde, hasta: nuevoHasta } = rangoDelMes(mesISO);
+
+        setDesde(nuevoDesde);
+        setHasta(nuevoHasta);
+
+    }
+
     function handleExport() {
 
         let rows: Record<string, unknown>[] = [];
@@ -295,7 +308,28 @@ export default function ReportesContent() {
 
                 {NECESITA_RANGO[tab] ? (
 
-                    <div className="flex items-end gap-3">
+                    <div className="flex flex-wrap items-end gap-3">
+
+                        <div className="flex flex-col gap-1">
+
+                            <label className="text-sm text-gray-600">Mes</label>
+
+                            <input
+                                type="month"
+                                value={desde.slice(0, 7)}
+                                onChange={(e) => handleMesChange(e.target.value)}
+                                className="rounded-lg border border-gray-300 px-4 py-2"
+                            />
+
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleHoy}
+                            className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition hover:bg-slate-50"
+                        >
+                            Hoy
+                        </button>
 
                         <div className="flex flex-col gap-1">
 

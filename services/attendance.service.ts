@@ -12,6 +12,7 @@ import {
 
 import { parseAttendanceWorkbook } from "@/lib/parsers/attendanceWorkbook";
 import { esEstudiante, DEPENDENCIA_ESTUDIANTE } from "@/lib/students";
+import { fechaBogota } from "@/lib/timezone";
 
 export interface ImportAttendanceSummary {
 
@@ -20,6 +21,8 @@ export interface ImportAttendanceSummary {
     periodoFin: Date;
 
     registrosImportados: number;
+
+    registrosOmitidos: number;
 
     empleadosVinculados: number;
 
@@ -126,26 +129,64 @@ export async function importAttendanceWorkbook(
 
     }
 
+    let registrosOmitidos = 0;
+
     if (documentos.length > 0) {
 
         const collection = await attendanceCollection();
 
-        await collection.bulkWrite(
-            documentos.map((doc) => ({
+        // El biométrico solo exporta el mes en curso, así que cada carga reincluye
+        // días ya importados antes. Un registro que ya quedó completo (con entrada
+        // Y salida) nunca se reescribe; solo se agregan días nuevos o se completan
+        // los que aún estaban incompletos (por ejemplo, con salida pendiente).
+        const biometricoIds = [...new Set(documentos.map((d) => d.biometricoId))];
+
+        const existentes = await collection
+            .find({
+                biometricoId: { $in: biometricoIds },
+                fecha: { $gte: periodoInicio, $lte: periodoFin }
+            })
+            .toArray();
+
+        const existentesPorClave = new Map(
+            existentes.map((e) => [`${e.biometricoId}_${e.fecha.getTime()}`, e])
+        );
+
+        const operaciones = [];
+
+        for (const doc of documentos) {
+
+            const clave = `${doc.biometricoId}_${doc.fecha.getTime()}`;
+            const existente = existentesPorClave.get(clave);
+
+            if (existente && existente.entrada && existente.salida) {
+
+                registrosOmitidos++;
+                continue;
+
+            }
+
+            operaciones.push({
                 updateOne: {
                     filter: { biometricoId: doc.biometricoId, fecha: doc.fecha },
                     update: { $set: doc },
                     upsert: true
                 }
-            }))
-        );
+            });
+
+        }
+
+        if (operaciones.length > 0) {
+            await collection.bulkWrite(operaciones);
+        }
 
     }
 
     return {
         periodoInicio,
         periodoFin,
-        registrosImportados: documentos.length,
+        registrosImportados: documentos.length - registrosOmitidos,
+        registrosOmitidos,
         empleadosVinculados: empleadosVinculadosIds.size,
         empleadosCreados
     };
@@ -197,8 +238,7 @@ export async function getTodayAttendanceCount(): Promise<number> {
 
     const collection = await attendanceCollection();
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+    const hoy = fechaBogota();
 
     const manana = new Date(hoy);
     manana.setDate(manana.getDate() + 1);

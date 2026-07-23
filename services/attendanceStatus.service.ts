@@ -19,6 +19,7 @@ import { getSchedules } from "@/services/schedule.service";
 import { getAttendance } from "@/services/attendance.service";
 import { getHolidaysForDate } from "@/services/holiday.service";
 import { esEstudiante, Poblacion } from "@/lib/students";
+import { fechaBogota } from "@/lib/timezone";
 
 function inicioDelDia(fecha: Date): Date {
 
@@ -68,21 +69,22 @@ function construirEstadoDelDia(
     const esFestivoNoLaboral = festivosAplicables.some((f) => f.tipo === "FESTIVO");
     const esEventoProgramado = festivosAplicables.some((f) => f.tipo === "EVENTO");
 
-    // Un domingo con un evento programado sí cuenta como día laboral (llegadas, tardanzas, horas);
-    // un domingo sin evento, o cualquier festivo oficial, se omite siempre de los conteos.
-    const esEventoDominical = dia === "DOMINGO" && esEventoProgramado;
+    // Un festivo oficial nunca cuenta (horas, días laborales, ausencias). Un domingo
+    // tampoco cuenta por defecto. La única excepción, para cualquier día de la semana,
+    // es cuando ese día tiene explícitamente creado un EVENTO: ahí sí cuenta como laboral.
+    const cuentaComoLaboral = esEventoProgramado && !esFestivoNoLaboral;
 
     const horasEsperadas = schedule
-        ? resolveHorasEsperadas(schedule, dia, esEventoDominical)
+        ? resolveHorasEsperadas(schedule, dia, cuentaComoLaboral)
         : null;
 
     let estado: AttendanceEstado;
 
-    if (esFestivoNoLaboral || (esEventoProgramado && !esEventoDominical)) {
+    if (esFestivoNoLaboral) {
 
         estado = "FESTIVO";
 
-    } else if (esEventoDominical) {
+    } else if (cuentaComoLaboral) {
 
         estado = schedule
             ? calcularEstado({
@@ -167,7 +169,7 @@ export async function getDailyStatus(
 
     const festivosDelDia = await getHolidaysForDate(fechaNormalizada);
 
-    const hoy = inicioDelDia(new Date());
+    const hoy = fechaBogota();
 
     return empleados.map((empleado) =>
         construirEstadoDelDia(
@@ -323,7 +325,7 @@ export async function getTodayCounts(): Promise<TodayCounts> {
         (e) => e.estado === "ACTIVO" && esEstudiante(e.dependencia)
     ).length;
 
-    const hoy = new Date();
+    const hoy = fechaBogota();
 
     const estadosHoy = await getDailyStatus(hoy, "EMPLEADOS");
 

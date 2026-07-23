@@ -20,10 +20,7 @@ import {
 
 import { getTodayCounts } from "@/services/attendanceStatus.service";
 import { getSessionUser } from "@/lib/auth";
-
-function isoToday(): string {
-    return new Date().toISOString().slice(0, 10);
-}
+import { isoFechaBogota, horaNumericaBogota } from "@/lib/timezone";
 
 export default async function DashboardPage() {
 
@@ -40,7 +37,7 @@ export default async function DashboardPage() {
         estudiantesTardanzas
     } = await getTodayCounts();
 
-    const hora = new Date().getHours();
+    const hora = horaNumericaBogota();
 
     let saludo = "Buenas noches";
 
@@ -50,7 +47,9 @@ export default async function DashboardPage() {
     else if (hora < 18)
         saludo = "Buenas tardes";
 
-    const asistenciaHoyHref = `/asistencia?vista=dia&fecha=${isoToday()}`;
+    const asistenciaHoyHref = `/asistencia?vista=dia&fecha=${isoFechaBogota()}`;
+    const tardanzasHref = `${asistenciaHoyHref}&estado=tardanza`;
+    const ausenciasHref = `${asistenciaHoyHref}&estado=ausente`;
 
     return (
 
@@ -103,7 +102,7 @@ export default async function DashboardPage() {
 
                 {puedeVerOperativo ? (
 
-                    <Link href={asistenciaHoyHref} className="block">
+                    <Link href={tardanzasHref} className="block">
 
                         <StatCard
                             title="Tardanzas"
@@ -127,7 +126,7 @@ export default async function DashboardPage() {
 
                 {puedeVerOperativo ? (
 
-                    <Link href={asistenciaHoyHref} className="block">
+                    <Link href={ausenciasHref} className="block">
 
                         <StatCard
                             title="Ausencias"

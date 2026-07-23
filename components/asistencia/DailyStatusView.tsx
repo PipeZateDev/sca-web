@@ -6,16 +6,35 @@ import Section from "@/components/ui/Section";
 import EstadoBadge from "./EstadoBadge";
 import { EmployeeDayStatus } from "@/types/attendanceStatus";
 import { useDailyStatus } from "@/hooks/useDailyStatus";
+import { AttendanceEstado } from "@/lib/scheduleEngine";
 
 interface Props {
     fecha: string;
     onFechaChange: (fecha: string) => void;
     estudiantes?: boolean;
+    filtroEstado?: AttendanceEstado;
+    onFiltroEstadoChange?: (estado: AttendanceEstado | undefined) => void;
 }
 
 const SIN_HORARIO = "Sin horario asignado";
 
-export default function DailyStatusView({ fecha, onFechaChange, estudiantes = false }: Props) {
+const ETIQUETA_FILTRO: Record<string, string> = {
+    TARDANZA: "Tardanzas",
+    AUSENTE: "Ausencias"
+};
+
+const FILA_POR_ESTADO: Record<string, string> = {
+    TARDANZA: "bg-orange-50",
+    AUSENTE: "bg-red-50"
+};
+
+export default function DailyStatusView({
+    fecha,
+    onFechaChange,
+    estudiantes = false,
+    filtroEstado,
+    onFiltroEstadoChange
+}: Props) {
 
     const { estados, loading } = useDailyStatus(fecha, estudiantes);
 
@@ -27,11 +46,16 @@ export default function DailyStatusView({ fecha, onFechaChange, estudiantes = fa
     const esDomingoSinEvento =
         !loading && estados.length > 0 && visibles.length === 0;
 
+    const filtrados = useMemo(
+        () => (filtroEstado ? visibles.filter((e) => e.estado === filtroEstado) : visibles),
+        [visibles, filtroEstado]
+    );
+
     const grupos = useMemo(() => {
 
         const mapa = new Map<string, EmployeeDayStatus[]>();
 
-        for (const estado of visibles) {
+        for (const estado of filtrados) {
 
             const clave = estado.horarioNombre ?? SIN_HORARIO;
 
@@ -60,13 +84,13 @@ export default function DailyStatusView({ fecha, onFechaChange, estudiantes = fa
 
         });
 
-    }, [visibles]);
+    }, [filtrados]);
 
     return (
 
         <div>
 
-            <div className="mb-6 flex items-center gap-3">
+            <div className="mb-6 flex flex-wrap items-center gap-3">
 
                 <label className="text-sm text-gray-600">Fecha</label>
 
@@ -76,6 +100,27 @@ export default function DailyStatusView({ fecha, onFechaChange, estudiantes = fa
                     onChange={(e) => onFechaChange(e.target.value)}
                     className="rounded-lg border border-gray-300 px-4 py-2 outline-none transition focus:border-green-600"
                 />
+
+                {filtroEstado && (
+
+                    <span className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+
+                        Mostrando solo: {ETIQUETA_FILTRO[filtroEstado] ?? filtroEstado}
+
+                        {onFiltroEstadoChange && (
+
+                            <button
+                                onClick={() => onFiltroEstadoChange(undefined)}
+                                className="font-medium text-green-700 hover:underline"
+                            >
+                                Ver todos
+                            </button>
+
+                        )}
+
+                    </span>
+
+                )}
 
             </div>
 
@@ -95,6 +140,12 @@ export default function DailyStatusView({ fecha, onFechaChange, estudiantes = fa
 
                 <div className="rounded-2xl border bg-blue-50 p-10 text-center text-blue-600 shadow">
                     Domingo — Dominical. No hay asistencia laboral programada para este día.
+                </div>
+
+            ) : filtrados.length === 0 ? (
+
+                <div className="rounded-2xl border bg-white p-10 text-center text-gray-500 shadow">
+                    Nadie con estado &quot;{ETIQUETA_FILTRO[filtroEstado ?? ""] ?? filtroEstado}&quot; este día.
                 </div>
 
             ) : (
@@ -135,7 +186,10 @@ export default function DailyStatusView({ fecha, onFechaChange, estudiantes = fa
 
                                         {lista.map((estado) => (
 
-                                            <tr key={estado.empleadoId} className="border-t">
+                                            <tr
+                                                key={estado.empleadoId}
+                                                className={`border-t ${FILA_POR_ESTADO[estado.estado] ?? ""}`}
+                                            >
 
                                                 <td className="p-4">{estado.nombreCompleto}</td>
 

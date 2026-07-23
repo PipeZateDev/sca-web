@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getAttendance } from "@/services/attendance.service";
+import { parseFechaISO } from "@/lib/dateParams";
 
 export async function GET(request: NextRequest) {
 
@@ -13,8 +14,8 @@ export async function GET(request: NextRequest) {
         const biometricoId = searchParams.get("biometricoId");
 
         const registros = await getAttendance({
-            desde: desde ? new Date(desde) : undefined,
-            hasta: hasta ? new Date(hasta) : undefined,
+            desde: desde ? parseFechaISO(desde) : undefined,
+            hasta: hasta ? parseFechaISO(hasta) : undefined,
             biometricoId: biometricoId ?? undefined
         });
 

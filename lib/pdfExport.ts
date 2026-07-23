@@ -1,7 +1,23 @@
+// Margen mínimo para aprovechar el ancho de la hoja carta.
+const MARGEN_PT = 14;
+
+// Ancho/alto de una hoja carta en puntos, según orientación.
+const CARTA_VERTICAL = { ancho: 612, alto: 792 };
+const CARTA_HORIZONTAL = { ancho: 792, alto: 612 };
+
+// Si el contenido capturado es notablemente más ancho que alto (tablas con muchas
+// columnas, gráficas de barras con muchos empleados), se exporta en horizontal para
+// que no se reduzca demasiado; de lo contrario, en vertical.
+const UMBRAL_APAISADO = 1.3;
+
 export async function exportElementToPdf(elementId: string, filename: string): Promise<void> {
 
+    // Se usa el fork "html2canvas-pro" en vez de "html2canvas": Tailwind v4 genera
+    // colores con la función oklch() en absolutamente todos los elementos (por el
+    // border-border global), y la librería original no sabe interpretar oklch(),
+    // lo que rompía la exportación a PDF.
     const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
+        import("html2canvas-pro"),
         import("jspdf")
     ]);
 
@@ -17,34 +33,64 @@ export async function exportElementToPdf(elementId: string, filename: string): P
         useCORS: true
     });
 
+    const esApaisado = canvas.width / canvas.height > UMBRAL_APAISADO;
+    const carta = esApaisado ? CARTA_HORIZONTAL : CARTA_VERTICAL;
+
+    // Siempre se ajusta al ancho fijo de la hoja carta (mínimo margen a los lados).
+    const anchoDisponible = carta.ancho - MARGEN_PT * 2;
+    const escala = anchoDisponible / canvas.width;
+    const anchoImagen = anchoDisponible;
+    const altoImagenTotal = canvas.height * escala;
+
+    const altoDisponibleUnaPagina = carta.alto - MARGEN_PT * 2;
+
     const imagenPng = canvas.toDataURL("image/png");
 
+    if (altoImagenTotal <= altoDisponibleUnaPagina) {
+
+        // Cabe en una sola página: en vez de una hoja carta completa (11in de alto)
+        // dejando espacio en blanco de sobra, la página se recorta a la altura real
+        // del contenido (más el margen), y el contenido queda pegado arriba, no
+        // centrado.
+        const altoPaginaAjustado = altoImagenTotal + MARGEN_PT * 2;
+
+        const pdf = new jsPDF({
+            unit: "pt",
+            format: [carta.ancho, altoPaginaAjustado]
+        });
+
+        pdf.addImage(imagenPng, "PNG", MARGEN_PT, MARGEN_PT, anchoImagen, altoImagenTotal);
+
+        pdf.save(filename);
+
+        return;
+
+    }
+
+    // El contenido es más alto que una hoja carta completa: se usa el tamaño de
+    // página estándar y se reparte en varias páginas.
     const pdf = new jsPDF({
-        orientation: "portrait",
+        orientation: esApaisado ? "landscape" : "portrait",
         unit: "pt",
-        format: "a4"
+        format: "letter"
     });
 
-    const anchoPagina = pdf.internal.pageSize.getWidth();
-    const altoPagina = pdf.internal.pageSize.getHeight();
+    let alturaMostrada = 0;
+    let primeraPagina = true;
 
-    const anchoImagen = anchoPagina;
-    const altoImagen = (canvas.height * anchoImagen) / canvas.width;
+    while (alturaMostrada < altoImagenTotal) {
 
-    let posicionY = 0;
-    let alturaRestante = altoImagen;
+        if (!primeraPagina) {
+            pdf.addPage();
+        }
 
-    pdf.addImage(imagenPng, "PNG", 0, posicionY, anchoImagen, altoImagen);
-    alturaRestante -= altoPagina;
+        primeraPagina = false;
 
-    while (alturaRestante > 0) {
+        const posicionY = MARGEN_PT - alturaMostrada;
 
-        posicionY = alturaRestante - altoImagen;
+        pdf.addImage(imagenPng, "PNG", MARGEN_PT, posicionY, anchoImagen, altoImagenTotal);
 
-        pdf.addPage();
-        pdf.addImage(imagenPng, "PNG", 0, posicionY, anchoImagen, altoImagen);
-
-        alturaRestante -= altoPagina;
+        alturaMostrada += altoDisponibleUnaPagina;
 
     }
 

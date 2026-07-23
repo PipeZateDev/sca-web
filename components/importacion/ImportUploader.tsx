@@ -72,7 +72,9 @@ export default function ImportUploader({ loading, onImport }: ImportUploaderProp
 
                     </p>
 
-                    <p>Registros importados: {resumen.registrosImportados}</p>
+                    <p>Registros nuevos o completados: {resumen.registrosImportados}</p>
+
+                    <p>Registros ya completos (sin tocar): {resumen.registrosOmitidos}</p>
 
                     <p>Empleados ya vinculados: {resumen.empleadosVinculados}</p>
 

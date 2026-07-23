@@ -12,6 +12,7 @@ export type ReportTab =
     | "graficas";
 
 const TABS: { id: ReportTab; label: string }[] = [
+    { id: "graficas", label: "Gráficas" },
     { id: "asistencia", label: "Asistencia" },
     { id: "tardanzas", label: "Tardanzas" },
     { id: "ausencias", label: "Ausencias" },
@@ -19,8 +20,7 @@ const TABS: { id: ReportTab; label: string }[] = [
     { id: "empleados", label: "Empleados" },
     { id: "horarios", label: "Horarios asignados" },
     { id: "festivos", label: "Festivos" },
-    { id: "estudiantes", label: "Estudiantes" },
-    { id: "graficas", label: "Gráficas" }
+    { id: "estudiantes", label: "Estudiantes" }
 ];
 
 interface Props {

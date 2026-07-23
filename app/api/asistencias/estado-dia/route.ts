@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDailyStatus } from "@/services/attendanceStatus.service";
 import { parseFechaISO } from "@/lib/dateParams";
 import { Poblacion } from "@/lib/students";
+import { fechaBogota } from "@/lib/timezone";
 
 export async function GET(request: NextRequest) {
 
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
 
         const fechaParam = request.nextUrl.searchParams.get("fecha");
 
-        const fecha = fechaParam ? parseFechaISO(fechaParam) : new Date();
+        const fecha = fechaParam ? parseFechaISO(fechaParam) : fechaBogota();
 
         const poblacion: Poblacion =
             request.nextUrl.searchParams.get("poblacion") === "estudiantes"

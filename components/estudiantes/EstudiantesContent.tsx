@@ -6,15 +6,12 @@ import PageTitle from "@/components/ui/PageTitle";
 import PeriodoToggle, { Periodo } from "@/components/asistencia/PeriodoToggle";
 import DailyStatusView from "@/components/asistencia/DailyStatusView";
 import WeeklySummaryView from "@/components/asistencia/WeeklySummaryView";
-
-function isoToday(): string {
-    return new Date().toISOString().slice(0, 10);
-}
+import { isoFechaBogota } from "@/lib/timezone";
 
 export default function EstudiantesContent() {
 
     const [periodo, setPeriodo] = useState<Periodo>("dia");
-    const [fecha, setFecha] = useState(isoToday());
+    const [fecha, setFecha] = useState(isoFechaBogota());
 
     return (
 
