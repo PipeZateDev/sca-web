@@ -150,50 +150,46 @@ export default async function DashboardPage() {
 
             </div>
 
-            {puedeVerOperativo && (
+            <Section title="Estudiantes">
 
-                <Section title="Estudiantes">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Link href="/estudiantes" className="block">
 
-                        <Link href="/estudiantes" className="block">
+                        <StatCard
+                            title="Estudiantes registrados"
+                            value={estudiantesActivos}
+                            icon={GraduationCap}
+                            color="#0B4F8A"
+                        />
 
-                            <StatCard
-                                title="Estudiantes registrados"
-                                value={estudiantesActivos}
-                                icon={GraduationCap}
-                                color="#0B4F8A"
-                            />
+                    </Link>
 
-                        </Link>
+                    <Link href="/estudiantes" className="block">
 
-                        <Link href="/estudiantes" className="block">
+                        <StatCard
+                            title="Llegadas hoy"
+                            value={estudiantesLlegadasHoy}
+                            icon={ClipboardCheck}
+                            color="#0A8A2A"
+                        />
 
-                            <StatCard
-                                title="Llegadas hoy"
-                                value={estudiantesLlegadasHoy}
-                                icon={ClipboardCheck}
-                                color="#0A8A2A"
-                            />
+                    </Link>
 
-                        </Link>
+                    <Link href="/estudiantes" className="block">
 
-                        <Link href="/estudiantes" className="block">
+                        <StatCard
+                            title="Tardanzas hoy"
+                            value={estudiantesTardanzas}
+                            icon={Clock3}
+                            color="#F59E0B"
+                        />
 
-                            <StatCard
-                                title="Tardanzas hoy"
-                                value={estudiantesTardanzas}
-                                icon={Clock3}
-                                color="#F59E0B"
-                            />
+                    </Link>
 
-                        </Link>
+                </div>
 
-                    </div>
-
-                </Section>
-
-            )}
+            </Section>
 
             <Section title="Accesos rápidos">
 
@@ -240,20 +236,16 @@ export default async function DashboardPage() {
 
                     )}
 
-                    {puedeVerOperativo && (
+                    <Link
+                        href="/estudiantes"
+                        className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
+                    >
 
-                        <Link
-                            href="/estudiantes"
-                            className="rounded-xl border bg-white p-6 hover:shadow-lg transition text-center block"
-                        >
+                        <GraduationCap className="mx-auto mb-3 text-indigo-600" />
 
-                            <GraduationCap className="mx-auto mb-3 text-indigo-600" />
+                        Estudiantes
 
-                            Estudiantes
-
-                        </Link>
-
-                    )}
+                    </Link>
 
                     <Link
                         href="/reportes"

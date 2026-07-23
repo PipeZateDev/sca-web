@@ -32,7 +32,6 @@ export const menu: MenuItem[] = [
         title: "Estudiantes",
         href: "/estudiantes",
         icon: GraduationCap,
-        roles: ["ADMINISTRADOR", "COORDINADOR"],
     },
 
     {

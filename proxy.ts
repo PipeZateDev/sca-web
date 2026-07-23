@@ -9,7 +9,6 @@ const PUBLIC_PREFIXES = ["/login", "/api/auth/login"];
 const SECCIONES_RESTRINGIDAS: { prefijo: string; roles: Role[] }[] = [
     { prefijo: "/configuracion", roles: ["ADMINISTRADOR"] },
     { prefijo: "/asistencia", roles: ["ADMINISTRADOR", "COORDINADOR"] },
-    { prefijo: "/estudiantes", roles: ["ADMINISTRADOR", "COORDINADOR"] },
     { prefijo: "/importacion", roles: ["ADMINISTRADOR", "COORDINADOR"] },
     { prefijo: "/horarios", roles: ["ADMINISTRADOR", "COORDINADOR"] },
     { prefijo: "/festivos", roles: ["ADMINISTRADOR", "COORDINADOR"] }
